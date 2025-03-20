@@ -867,5 +867,590 @@
             
             if (guard.row < playerRow) rowDiff = 1;
             else if (guard.row > playerRow) rowDiff = -1;
+            if (guard.col < playerCol) colDiff = 1;
+            else if (guard.col > playerCol) colDiff = -1;
             
-            if (guard.col < playerCol) colDiff
+            return { rowDiff, colDiff };
+        }
+        
+        // Get Random Direction
+        function getRandomDirection(guard) {
+            const directions = [
+                { rowDiff: -1, colDiff: 0 },  // Up
+                { rowDiff: 1, colDiff: 0 },   // Down
+                { rowDiff: 0, colDiff: -1 },  // Left
+                { rowDiff: 0, colDiff: 1 }    // Right
+            ];
+            
+            // Shuffle directions
+            for (let i = directions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [directions[i], directions[j]] = [directions[j], directions[i]];
+            }
+            
+            // Find first valid direction
+            for (const dir of directions) {
+                const newRow = guard.row + dir.rowDiff;
+                const newCol = guard.col + dir.colDiff;
+                
+                // Check if valid position
+                if (newRow >= 0 && newRow < gameState.gridSize && newCol >= 0 && newCol < gameState.gridSize) {
+                    // Check if occupied by guard, player, or obstacle
+                    const isOccupied = 
+                        gameState.guardPositions.some(g => g.row === newRow && g.col === newCol) || 
+                        (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col) ||
+                        gameState.obstaclePositions.some(o => o.row === newRow && o.col === newCol);
+                    
+                    if (!isOccupied) {
+                        return dir;
+                    }
+                }
+            }
+            
+            // If no valid direction, return no movement
+            return { rowDiff: 0, colDiff: 0 };
+        }
+        
+        // Execute Guard Actions
+        function executeGuardActions(actions) {
+            if (actions.length === 0) {
+                // All actions complete, end guard turn
+                endGuardTurn();
+                return;
+            }
+            
+            const action = actions.shift();
+            
+            // Execute action
+            switch (action.type) {
+                case 'move':
+                    guardMove(action.guardId, action.direction);
+                    break;
+                case 'attack':
+                    guardAttack(action.guardId);
+                    break;
+            }
+            
+            // Execute next action after delay
+            setTimeout(() => {
+                executeGuardActions(actions);
+            }, 500);
+        }
+        
+        // Guard Move
+        function guardMove(guardId, direction) {
+            // Guard might have been removed
+            if (guardId >= gameState.guardPositions.length) return;
+            
+            const guard = gameState.guardPositions[guardId];
+            const newRow = guard.row + direction.rowDiff;
+            const newCol = guard.col + direction.colDiff;
+            
+            // Check if valid position
+            if (newRow >= 0 && newRow < gameState.gridSize && newCol >= 0 && newCol < gameState.gridSize) {
+                // Check if occupied by guard, player, or obstacle
+                const isOccupied = 
+                    gameState.guardPositions.some(g => g.row === newRow && g.col === newCol) || 
+                    (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col) ||
+                    gameState.obstaclePositions.some(o => o.row === newRow && o.col === newCol);
+                
+                if (!isOccupied) {
+                    // Update guard position
+                    gameState.guardPositions[guardId] = { row: newRow, col: newCol };
+                    updateGridDisplay();
+                }
+            }
+        }
+        
+        // Guard Attack
+        function guardAttack(guardId) {
+            // Guard might have been removed
+            if (guardId >= gameState.guardPositions.length) return;
+            
+            const guard = gameState.guardPositions[guardId];
+            
+            // Check if adjacent to player
+            const playerRow = gameState.playerPosition.row;
+            const playerCol = gameState.playerPosition.col;
+            
+            const isAdjacent = (
+                (Math.abs(guard.row - playerRow) <= 1 && 
+                 Math.abs(guard.col - playerCol) <= 1) &&
+                !(guard.row === playerRow && guard.col === playerCol)
+            );
+            
+            if (!isAdjacent) return;
+            
+            // Create light beam effect
+            createLightBeam(guard, gameState.playerPosition);
+            
+            // Check if player is defending
+            if (gameState.playerIsDefending) {
+                showNotification("Attack Blocked! 🛡️");
+            } else {
+                // Player takes damage
+                gameState.playerHP -= 1;
+                updateStats();
+                
+                showNotification("You got hit! -1 HP");
+                
+                // Check if player is dead
+                if (gameState.playerHP <= 0) {
+                    gameOver(false);
+                }
+            }
+        }
+        
+        // Create Light Beam
+        function createLightBeam(from, to) {
+            // Get cell positions
+            const fromCell = document.querySelector(`.grid-cell[data-row="${from.row}"][data-col="${from.col}"]`);
+            const toCell = document.querySelector(`.grid-cell[data-row="${to.row}"][data-col="${to.col}"]`);
+            
+            if (!fromCell || !toCell) return;
+            
+            const fromRect = fromCell.getBoundingClientRect();
+            const toRect = toCell.getBoundingClientRect();
+            
+            // Calculate beam properties
+            const fromX = fromRect.left + fromRect.width / 2;
+            const fromY = fromRect.top + fromRect.height / 2;
+            const toX = toRect.left + toRect.width / 2;
+            const toY = toRect.top + toRect.height / 2;
+            
+            const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
+            const distance = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
+            
+            // Create beam element
+            const beam = document.createElement('div');
+            beam.className = 'light-beam';
+            beam.style.width = `${distance}px`;
+            beam.style.height = '10px';
+            beam.style.left = `${fromX}px`;
+            beam.style.top = `${fromY}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            
+            document.body.appendChild(beam);
+            
+            // Remove beam after animation
+            setTimeout(() => {
+                beam.remove();
+            }, 800);
+        }
+        
+        // End Guard Turn
+        function endGuardTurn() {
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Start player turn
+            startPlayerTurn();
+        }
+        
+        // Move Player
+        function movePlayer(row, col) {
+            gameState.playerPosition = { row, col };
+            updateGridDisplay();
+        }
+        
+        // Player Attack
+        function playerAttack() {
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 1) return;
+            
+            // Check if there are guards adjacent to player
+            const adjacentGuardIds = [];
+            
+            for (let i = 0; i < gameState.guardPositions.length; i++) {
+                const guard = gameState.guardPositions[i];
+                const isAdjacent = (
+                    (Math.abs(guard.row - gameState.playerPosition.row) <= 1 && 
+                     Math.abs(guard.col - gameState.playerPosition.col) <= 1) &&
+                    !(guard.row === gameState.playerPosition.row && guard.col === gameState.playerPosition.col)
+                );
+                
+                if (isAdjacent) {
+                    adjacentGuardIds.push(i);
+                }
+            }
+            
+            if (adjacentGuardIds.length > 0) {
+                // Attack costs 1 action
+                gameState.actionsLeft -= 1;
+                updateActionsLeft();
+                
+                // Attack the first adjacent guard
+                const guardId = adjacentGuardIds[0];
+                
+                // Remove guard from state
+                gameState.guardPositions.splice(guardId, 1);
+                
+                // Update grid display
+                updateGridDisplay();
+                
+                // Visual effect
+                showNotification("GUARD DEFEATED! ⚔️");
+                
+                // Check if all guards are defeated
+                if (gameState.guardPositions.length === 0) {
+                    levelComplete();
+                }
+            } else {
+                showNotification("No guards in range to attack!");
+            }
+        }
+        
+        // Level Complete
+        function levelComplete() {
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Show level complete animation
+            levelCompleteScreen.style.display = 'flex';
+            showNotification("ALL GUARDS DEFEATED! LEVEL COMPLETE!");
+            
+            // Proceed to next level after delay
+            setTimeout(() => {
+                levelCompleteScreen.style.display = 'none';
+                
+                // Increase level
+                gameState.currentLevel++;
+                changeEnvironment();
+                
+                // Reset player position to center
+                gameState.playerPosition = { row: Math.floor(gameState.gridSize / 2), col: Math.floor(gameState.gridSize / 2) };
+                
+                // Generate new obstacles
+                generateObstacles();
+                
+                // Spawn new guards and pickups
+                spawnGuards();
+                spawnPickups();
+                
+                // Start player's turn
+                updateStats();
+                updateGridDisplay();
+                startPlayerTurn();
+                
+            }, 3000);
+        }
+        
+        // Player Defend
+        function playerDefend() {
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 2) {
+                showNotification("Not enough actions to defend!");
+                return;
+            }
+            
+            gameState.playerIsDefending = true;
+            showNotification("SHIELD UP! 🛡️ Ready to block flashlight attacks!");
+            
+            // Defend costs 2 actions
+            gameState.actionsLeft -= 2;
+            updateActionsLeft();
+            
+            // Update player display
+            updateGridDisplay();
+        }
+        
+        // Use Special Move
+        function useSpecialMove() {
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.specialMeter < gameState.maxSpecialMeter) {
+                return;
+            }
+            
+            // Special move costs 3 actions
+            if (gameState.actionsLeft < 3) {
+                showNotification("Not enough actions for special move!");
+                return;
+            }
+            
+            // Use all actions
+            gameState.actionsLeft = 0;
+            updateActionsLeft();
+            
+            // Reset special meter
+            gameState.specialMeter = 0;
+            updateSpecialMeter();
+            
+            // Defeat all guards
+            const guardCount = gameState.guardPositions.length;
+            gameState.guardPositions = [];
+            
+            // Show special effects
+            showNotification(`SPECIAL MOVE! Defeated ${guardCount} guards!`);
+            
+            // Fill grid with poop emoji temporarily
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                if (!cell.classList.contains('player-cell') && !cell.classList.contains('obstacle-cell')) {
+                    cell.textContent = '💩';
+                    cell.style.backgroundColor = '#6247aa';
+                }
+            });
+            
+            // Clear grid after effect and complete level
+            setTimeout(() => {
+                levelComplete();
+            }, 2000);
+        }
+        
+        // Spawn Guards
+        function spawnGuards() {
+            // Clear existing guards
+            gameState.guardPositions = [];
+            
+            // Determine number of guards based on current level
+            const numGuards = gameState.currentLevel + 1;
+            
+            for (let i = 0; i < numGuards; i++) {
+                // Choose random position (not on player or pickup or obstacle)
+                let row, col;
+                let valid = false;
+                let attempts = 0;
+                
+                while (!valid && attempts < 50) {
+                    row = Math.floor(Math.random() * gameState.gridSize);
+                    col = Math.floor(Math.random() * gameState.gridSize);
+                    attempts++;
+                    
+                    // Check if position is valid
+                    const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
+                    const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
+                    const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                    const isObstaclePos = gameState.obstaclePositions.some(o => o.row === row && o.col === col);
+                    
+                    // Also ensure not adjacent to player at start
+                    const isAdjacentToPlayer = (
+                        (Math.abs(row - gameState.playerPosition.row) <= 1 && 
+                         Math.abs(col - gameState.playerPosition.col) <= 1)
+                    );
+                    
+                    valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isObstaclePos && !isAdjacentToPlayer;
+                }
+                
+                if (valid) {
+                    // Add guard to state
+                    gameState.guardPositions.push({ row, col });
+                }
+            }
+            
+            // Update grid display
+            updateGridDisplay();
+        }
+        
+        // Spawn Pickups
+        function spawnPickups() {
+            // Clear existing pickups
+            gameState.pickupPositions = [];
+            
+            // Spawn food (health) pickups
+            const numFoodPickups = Math.min(3, Math.floor(gameState.currentLevel / 2) + 1);
+            
+            for (let i = 0; i < numFoodPickups; i++) {
+                spawnPickup(['🧀', '🥫'][Math.floor(Math.random() * 2)]);
+            }
+            
+            // Spawn toilet paper (special) pickups
+            const numSpecialPickups = Math.min(3, Math.floor(gameState.currentLevel / 2) + 1);
+            
+            for (let i = 0; i < numSpecialPickups; i++) {
+                spawnPickup('🧻');
+            }
+            
+            // Update grid display
+            updateGridDisplay();
+        }
+        
+        // Spawn Pickup
+        function spawnPickup(type) {
+            let row, col;
+            let valid = false;
+            let attempts = 0;
+            
+            while (!valid && attempts < 50) {
+                row = Math.floor(Math.random() * gameState.gridSize);
+                col = Math.floor(Math.random() * gameState.gridSize);
+                attempts++;
+                
+                // Check if position is valid
+                const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
+                const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
+                const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                const isObstaclePos = gameState.obstaclePositions.some(o => o.row === row && o.col === col);
+                
+                valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isObstaclePos;
+            }
+            
+            if (valid) {
+                // Add pickup to state
+                gameState.pickupPositions.push({ row, col, type });
+            }
+        }
+        
+        // Collect Pickup
+        function collectPickup(pickup) {
+            const index = gameState.pickupPositions.findIndex(
+                p => p.row === pickup.row && p.col === pickup.col
+            );
+            
+            if (index === -1) return;
+            
+            // Remove pickup from state
+            gameState.pickupPositions.splice(index, 1);
+            
+            // Apply pickup effect
+            switch (pickup.type) {
+                case '🧀':
+                case '🥫':
+                    // Restore HP
+                    gameState.playerHP = Math.min(gameState.maxHP, gameState.playerHP + 2);
+                    showNotification(`Collected ${pickup.type}! +2 HP`);
+                    break;
+                case '🧻':
+                    // Add to special meter
+                    gameState.specialMeter = Math.min(gameState.maxSpecialMeter, gameState.specialMeter + 1);
+                    showNotification(`Collected 🧻! Special: ${gameState.specialMeter}/${gameState.maxSpecialMeter}`);
+                    break;
+            }
+            
+            // Update stats and display
+            updateStats();
+            updateGridDisplay();
+        }
+        
+        // Update Actions Left
+        function updateActionsLeft() {
+            actionsLeftElement.textContent = gameState.actionsLeft;
+            
+            // Update UI based on actions left
+            attackBtn.disabled = gameState.actionsLeft < 1;
+            defendBtn.disabled = gameState.actionsLeft < 2;
+            specialBtn.disabled = gameState.actionsLeft < 3 || gameState.specialMeter < gameState.maxSpecialMeter;
+            
+            // Update turn info text
+            turnInfoElement.firstElementChild.textContent = `Your Turn - ${gameState.actionsLeft} actions left`;
+            
+            // Auto-end turn if no actions left
+            if (gameState.actionsLeft <= 0) {
+                setTimeout(() => {
+                    if (gameState.isPlayerTurn) {
+                        endPlayerTurn();
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Update Special Meter
+        function updateSpecialMeter() {
+            specialCountElement.textContent = gameState.specialMeter;
+            specialMeterElement.style.width = `${(gameState.specialMeter / gameState.maxSpecialMeter) * 100}%`;
+            updateSpecialButton();
+        }
+        
+        // Update Special Button
+        function updateSpecialButton() {
+            if (gameState.specialMeter >= gameState.maxSpecialMeter) {
+                specialBtn.style.display = 'inline-block';
+            } else {
+                specialBtn.style.display = 'none';
+            }
+        }
+        
+        // Update Stats
+        function updateStats() {
+            healthElement.textContent = gameState.playerHP;
+            guardsCountElement.textContent = gameState.guardPositions.length;
+            levelElement.textContent = gameState.currentLevel;
+            updateSpecialMeter();
+        }
+        
+        // Game Over
+        function gameOver(isWin) {
+            gameState.gameOver = true;
+            
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Update game over message
+            gameOverMessage.textContent = isWin ? "You Win!" : "Game Over!";
+            
+            // Show game over screen
+            gameOverScreen.style.display = 'flex';
+            
+            // Disable buttons
+            attackBtn.disabled = true;
+            defendBtn.disabled = true;
+            endTurnBtn.disabled = true;
+            specialBtn.disabled = true;
+        }
+        
+        // Restart Game
+        function restartGame() {
+            gameOverScreen.style.display = 'none';
+            initGame();
+        }
+        
+        // Change Environment
+        function changeEnvironment() {
+            gameState.currentEnvironment = (gameState.currentEnvironment + 1) % gameState.environments.length;
+            updateEnvironmentDisplay();
+        }
+        
+        // Update Environment Display
+        function updateEnvironmentDisplay() {
+            const environment = gameState.environments[gameState.currentEnvironment];
+            environmentLabel.textContent = `Current Location: ${environment.emoji} ${environment.name}`;
+            
+            // Update styling based on environment
+            switch (environment.name) {
+                case 'Haunted Cemetery':
+                    document.body.style.backgroundColor = '#1a1a1a';
+                    environmentBackground.innerHTML = '🪦 👻 🧟‍♂️ 🦇 🪦 🌙 🪦 👻 🪦';
+                    environmentBackground.style.backgroundColor = '#333';
+                    break;
+                case 'Ghost Manor':
+                    document.body.style.backgroundColor = '#2a1a28';
+                    environmentBackground.innerHTML = '👻 🏚️ 🕯️ 🪟 👻 🕯️ 👻 🏚️ 👻';
+                    environmentBackground.style.backgroundColor = '#3a2a38';
+                    break;
+                case 'Crypts of Doom':
+                    document.body.style.backgroundColor = '#1a1a28';
+                    environmentBackground.innerHTML = '☠️ ⚰️ 🕸️ 🦴 ☠️ 🕸️ ☠️ ⚰️ ☠️';
+                    environmentBackground.style.backgroundColor = '#2a2a38';
+                    break;
+            }
+        }
+        
+        // Show Notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+```
+
+This completes the game with all your requested changes:
+- 60-second turn timer (displayed as minutes:seconds)
+- "Level Complete" animation between levels
+- Player always goes first at the beginning of each level
+- 8x8 grid for more space to move around
+- Graveyard theme with gravestones as obstacles
+- Enhanced visuals and pickups
+- Special ability to defeat all guards at once
+
+The code is now ready to copy and paste into an HTML file to play the game.
