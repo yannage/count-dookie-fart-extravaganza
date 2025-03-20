@@ -30,12 +30,33 @@
             margin-bottom: 10px;
         }
         
+        #count-dookie-container {
+            position: relative;
+            height: 150px;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        
+        #environment-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            letter-spacing: 5px;
+            z-index: 1;
+        }
+        
         #count-dookie {
             font-size: 80px;
             position: relative;
             display: inline-block;
             margin: 20px 0;
             transition: transform 0.2s;
+            z-index: 2;
         }
         
         .vampire-cape {
@@ -46,6 +67,26 @@
             z-index: -1;
             transform: rotate(-10deg);
             color: #731963;
+        }
+        
+        .vampire-left-eye {
+            position: absolute;
+            top: 43px;
+            left: 30px;
+            font-size: 20px;
+            z-index: 3;
+            transform: scale(0.5);
+            filter: brightness(1.2) drop-shadow(0 0 3px #ff0000);
+        }
+        
+        .vampire-right-eye {
+            position: absolute;
+            top: 43px;
+            left: 57px;
+            font-size: 20px;
+            z-index: 3;
+            transform: scale(0.5);
+            filter: brightness(1.2) drop-shadow(0 0 3px #ff0000);
         }
         
         #game-grid {
@@ -217,17 +258,31 @@
             font-size: 18px;
             margin: 10px 0;
             color: #ffc107;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        
+        #environment-label:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 <body>
     <div id="game-container">
         <h1>Count Dookie Fart</h1>
-        <div id="environment-label">Current Location: Castle Banquet Hall</div>
+        <div id="environment-label">Current Location: 🏰 Castle Banquet Hall</div>
         
-        <div id="count-dookie">
-            <div class="vampire-cape">🦇</div>
-            💩
+        <div id="count-dookie-container">
+            <div id="environment-background"></div>
+            <div id="count-dookie">
+                <div class="vampire-cape">🦇</div>
+                <div class="vampire-left-eye">🔴</div>
+                <div class="vampire-right-eye">🔴</div>
+                💩
+            </div>
         </div>
         
         <div id="meter-container">
@@ -270,9 +325,9 @@
             gastroIncreaseRate: 2, // Percentage increase per second
             foodItems: ['🥫', '🌮', '🧀', '🥦', '🍕', '🍦', '🥤', '🌶️', '🍩', '🍗'],
             environments: [
-                { name: 'Castle Banquet Hall', difficulty: 1 },
-                { name: 'Opera House', difficulty: 2 },
-                { name: 'Royal Library', difficulty: 3 }
+                { name: 'Castle Banquet Hall', difficulty: 1, emoji: '🏰' },
+                { name: 'Opera House', difficulty: 2, emoji: '🎭' },
+                { name: 'Royal Library', difficulty: 3, emoji: '📚' }
             ],
             currentEnvironment: 0,
             dangerZones: []
@@ -721,7 +776,12 @@
                 fartCloud.style.color = '#a7f542';
                 fartCloud.style.opacity = '0.7';
             } else {
-                fartCloud.textContent = '💨';
+                // Easter egg: vampire bat farts sometimes
+                if (Math.random() > 0.8) {
+                    fartCloud.textContent = '🦇💨';
+                } else {
+                    fartCloud.textContent = '💨';
+                }
             }
             
             fartCloud.style.left = `${dookieRect.left + dookieRect.width / 2}px`;
@@ -738,6 +798,21 @@
             if (!isSilent) {
                 countDookie.classList.add('shake');
                 setTimeout(() => countDookie.classList.remove('shake'), 500);
+                
+                // Add evil laugh for loud farts
+                if (Math.random() > 0.7) {
+                    const evilLaugh = document.createElement('div');
+                    evilLaugh.className = 'floating-text';
+                    evilLaugh.textContent = 'MUAHAHAHA! 😈';
+                    evilLaugh.style.left = `${dookieRect.left}px`;
+                    evilLaugh.style.top = `${dookieRect.top - 40}px`;
+                    evilLaugh.style.color = '#ff0000';
+                    document.body.appendChild(evilLaugh);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(evilLaugh);
+                    }, 1500);
+                }
             }
         }
         
@@ -777,18 +852,25 @@
         // Update Environment Display
         function updateEnvironmentDisplay() {
             const environment = gameState.environments[gameState.currentEnvironment];
-            environmentLabel.textContent = `Current Location: ${environment.name}`;
+            environmentLabel.textContent = `Current Location: ${environment.emoji} ${environment.name}`;
+            const backgroundElement = document.getElementById('environment-background');
             
             // Update styling based on environment
             switch (environment.name) {
                 case 'Castle Banquet Hall':
                     document.body.style.backgroundColor = '#2c1b47';
+                    backgroundElement.innerHTML = '🏰 🍗 🍖 🍷 🏰 🍗 🍖 🍷 🏰';
+                    backgroundElement.style.backgroundColor = '#45336d';
                     break;
                 case 'Opera House':
                     document.body.style.backgroundColor = '#3a0028';
+                    backgroundElement.innerHTML = '🎭 🎻 🎵 🎺 🎭 🎻 🎵 🎺 🎭';
+                    backgroundElement.style.backgroundColor = '#5c1945';
                     break;
                 case 'Royal Library':
                     document.body.style.backgroundColor = '#28281e';
+                    backgroundElement.innerHTML = '📚 📜 📕 📖 📚 📜 📕 📖 📚';
+                    backgroundElement.style.backgroundColor = '#3d3d2a';
                     break;
             }
         }
