@@ -14,7 +14,7 @@
             padding: 20px;
             overflow: hidden;
         }
-        
+
         #game-container {
             max-width: 800px;
             margin: 0 auto;
@@ -25,7 +25,7 @@
             position: relative;
             transition: background-color 1s ease;
         }
-        
+
         #day-night-toggle {
             position: absolute;
             top: 20px;
@@ -37,20 +37,7 @@
             border-radius: 30px;
             transition: all 0.3s;
         }
-        
-        #day-night-toggle:hover {
-            background-color: rgba(0, 0, 0, 0.5);
-            transform: scale(1.1);
-        }
-        
-        .day-mode {
-            background-color: #3c2157;
-        }
-        
-        .night-mode {
-            background-color: #1a102c;
-        }
-        
+
         #game-mode-info {
             position: absolute;
             top: 60px;
@@ -61,13 +48,7 @@
             border-radius: 5px;
             font-size: 14px;
         }
-        
-        h1 {
-            color: #ff6090;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 10px;
-        }
-        
+
         #count-dookie-container {
             position: relative;
             height: 150px;
@@ -75,19 +56,17 @@
             overflow: hidden;
             border-radius: 15px;
         }
-        
+
         #environment-background {
             position: absolute;
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            letter-spacing: 5px;
-            z-index: 1;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            transition: background 1s ease;
         }
-        
+
         #count-dookie {
             font-size: 80px;
             position: relative;
@@ -96,7 +75,7 @@
             transition: transform 0.2s;
             z-index: 2;
         }
-        
+
         #game-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -107,7 +86,7 @@
             padding: 15px;
             border-radius: 10px;
         }
-        
+
         .grid-cell {
             background-color: #3e2157;
             border-radius: 8px;
@@ -118,41 +97,29 @@
             font-size: 24px;
             cursor: pointer;
             transition: all 0.2s;
-            position: relative;
         }
-        
-        .grid-cell:hover {
-            background-color: #512b6f;
-        }
-        
-        .grid-cell.has-item {
-            background-color: #7e3bad;
-        }
-        
-        .grid-cell.danger-zone {
-            background-color: #c9184a;
-        }
-        
+
+        .grid-cell.has-item { background-color: #7e3bad; }
+        .grid-cell.danger-zone { background-color: #c9184a; }
         .grid-cell.player-cell {
             background-color: #6247aa;
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
-        
+
         #meter-container {
             margin: 20px 0;
             position: relative;
         }
-        
+
         #gastro-meter {
             width: 100%;
             height: 30px;
             background-color: #333;
             border-radius: 15px;
             overflow: hidden;
-            position: relative;
         }
-        
+
         #meter-fill {
             height: 100%;
             width: 0%;
@@ -160,208 +127,32 @@
             transition: width 0.3s;
             border-radius: 15px;
         }
-        
+
         #controls {
             margin: 20px 0;
             transition: all 0.5s;
         }
-        
-        #day-controls {
-            display: flex;
-            justify-content: center;
-        }
-        
-        #night-controls {
-            display: none;
-            justify-content: center;
-        }
-        
-        button {
-            background-color: #ff6090;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        
-        button:hover {
-            background-color: #e91e63;
-            transform: scale(1.05);
-        }
-        
-        button:active {
-            transform: scale(0.95);
-        }
-        
-        .night-button {
-            background-color: #2c1b47;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        
-        .night-button:hover {
-            transform: scale(1.05);
-        }
-        
-        .night-button:active {
-            transform: scale(0.95);
-        }
-        
-        #attack-btn {
-            background-color: #c9184a;
-        }
-        
-        #defend-btn {
-            background-color: #4361ee;
-        }
-        
+
         #stats {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
         }
-        
+
         .stat-box {
             background-color: #3e2157;
             padding: 10px;
             border-radius: 8px;
             min-width: 100px;
         }
-        
-        .floating-text {
-            position: absolute;
-            font-size: 24px;
-            font-weight: bold;
-            animation: float-up 1s forwards;
-            text-shadow: 1px 1px 2px black;
-        }
-        
-        @keyframes float-up {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-        }
-        
-        .fart-cloud {
-            position: absolute;
-            font-size: 40px;
-            animation: float-away 2s forwards;
-            z-index: 10;
-        }
-        
-        @keyframes float-away {
-            0% {
-                opacity: 0;
-                transform: scale(0.1) translateY(0) translateX(0);
-            }
-            20% {
-                opacity: 1;
-                transform: scale(1) translateY(-20px) translateX(10px);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(1.5) translateY(-50px) translateX(30px);
-            }
-        }
-        
-        .shake {
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-3deg); }
-            20%, 40%, 60%, 80% { transform: translateX(5px) rotate(3deg); }
-        }
-        
-        #notification {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 100;
-            display: none;
-        }
-        
-        .food-item {
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        #environment-label {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #ffc107;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.2s;
-        }
-        
-        #environment-label:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .guard {
-            position: absolute;
-            font-size: 24px;
-            transition: all 0.5s;
-            z-index: 10;
-        }
-        
-        .guard-alert {
-            position: absolute;
-            font-size: 24px;
-            color: red;
-            animation: blink 0.5s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
+
         .flashlight-beam {
             position: absolute;
             background: radial-gradient(circle at 0% 0%, rgba(255, 255, 180, 0.8), transparent 70%);
             transform-origin: 0% 0%;
             z-index: 5;
         }
-        
-        .overheated-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(201, 24, 74, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 18px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-        }
+
     </style>
 </head>
 <body>
@@ -369,1290 +160,77 @@
         <div id="day-night-toggle">☀️</div>
         <div id="game-mode-info">Day Mode: Fart Management</div>
         <h1>Count Dookie Fart</h1>
-        <div id="environment-label">Current Location: 🏰 Castle Banquet Hall</div>
-        
         <div id="count-dookie-container">
             <div id="environment-background"></div>
-            <div id="count-dookie">
-                💩
-            </div>
+            <div id="count-dookie">💩</div>
         </div>
-        
+
         <div id="meter-container">
             <div id="gastro-meter">
                 <div id="meter-fill"></div>
             </div>
             <p>Gastro-Meter</p>
         </div>
-        
-        <div id="controls">
-            <div id="day-controls">
-                <button id="fart-btn">Fart! 💨</button>
-                <button id="hold-btn">Hold It! 😳</button>
-                <button id="stealth-btn">Silent But Deadly 🤫</button>
-            </div>
-            <div id="night-controls">
-                <button id="attack-btn" class="night-button">Attack! ⚔️</button>
-                <button id="defend-btn" class="night-button">Defend! 🛡️</button>
-                <button id="move-btn" class="night-button">Select Move Direction</button>
-            </div>
-        </div>
-        
+
         <div id="stats">
-            <div class="stat-box">
-                <div>Score: <span id="score">0</span></div>
-            </div>
-            <div class="stat-box">
-                <div>Streak: <span id="streak">0</span></div>
-            </div>
-            <div class="stat-box">
-                <div>Multiplier: <span id="multiplier">x1</span></div>
-            </div>
+            <div class="stat-box">Score: <span id="score">0</span></div>
+            <div class="stat-box">Streak: <span id="streak">0</span></div>
+            <div class="stat-box">Multiplier: <span id="multiplier">x1</span></div>
         </div>
-        
+
         <div id="game-grid"></div>
-        
-        <div id="notification"></div>
     </div>
 
     <script>
-        // Game State
         const gameState = {
             score: 0,
             streak: 0,
             multiplier: 1,
             gastroLevel: 0,
-            gastroIncreaseRate: 2, // Percentage increase per second
-            foodItems: ['🥫', '🌮', '🧀', '🥦', '🍕', '🍦', '🥤', '🌶️', '🍩', '🍗'],
-            environments: [
-                { name: 'Castle Banquet Hall', difficulty: 1, emoji: '🏰' },
-                { name: 'Opera House', difficulty: 2, emoji: '🎭' },
-                { name: 'Royal Library', difficulty: 3, emoji: '📚' }
-            ],
-            currentEnvironment: 0,
-            dangerZones: [],
             isNightMode: false,
-            guardPositions: [],
-            playerPosition: { row: 2, col: 2 },
-            playerIsDefending: false,
-            guardAlertPositions: [],
-            nightModeScore: 0,
-            overheatedCount: 0,
-            isOverheated: false,
-            toiletPaperCount: 0
+            playerPosition: { row: 2, col: 2 }
         };
-        
-        // DOM Elements
-        const countDookie = document.getElementById('count-dookie');
-        const meterFill = document.getElementById('meter-fill');
-        const fartBtn = document.getElementById('fart-btn');
-        const holdBtn = document.getElementById('hold-btn');
-        const stealthBtn = document.getElementById('stealth-btn');
-        const attackBtn = document.getElementById('attack-btn');
-        const defendBtn = document.getElementById('defend-btn');
-        const moveBtn = document.getElementById('move-btn');
+
         const scoreElement = document.getElementById('score');
         const streakElement = document.getElementById('streak');
         const multiplierElement = document.getElementById('multiplier');
-        const gameGrid = document.getElementById('game-grid');
-        const notification = document.getElementById('notification');
-        const environmentLabel = document.getElementById('environment-label');
+        const meterFill = document.getElementById('meter-fill');
         const dayNightToggle = document.getElementById('day-night-toggle');
         const gameModeInfo = document.getElementById('game-mode-info');
-        const dayControls = document.getElementById('day-controls');
-        const nightControls = document.getElementById('night-controls');
-        const gameContainer = document.getElementById('game-container');
-        
-        // Initialize Game
-        function initGame() {
-            initGrid();
-            updateMeter();
-            spawnItems();
-            
-            // Start the gastro meter fill (day mode only)
-            let gastroInterval = setInterval(increaseGastroLevel, 500);
-            
-            // Random chance of creating danger zones (day mode only)
-            let dangerInterval = setInterval(createDangerZone, 3000);
-            
-            updateEnvironmentDisplay();
-            
-            // Toggle day/night
-            dayNightToggle.addEventListener('click', () => {
-                toggleDayNight();
-                
-                if (gameState.isNightMode) {
-                    clearInterval(gastroInterval);
-                    clearInterval(dangerInterval);
-                    initNightMode();
-                } else {
-                    initDayMode();
-                    gastroInterval = setInterval(increaseGastroLevel, 500);
-                    dangerInterval = setInterval(createDangerZone, 3000);
-                }
-            });
-        }
-        
-        // Initialize Grid
-        function initGrid() {
-            gameGrid.innerHTML = '';
-            for (let row = 0; row < 5; row++) {
-                for (let col = 0; col < 5; col++) {
-                    const index = row * 5 + col;
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.dataset.index = index;
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    cell.addEventListener('click', handleCellClick);
-                    gameGrid.appendChild(cell);
-                }
-            }
-        }
-        
-        // Handle Cell Click
-        function handleCellClick(e) {
-            const cell = e.target;
-            const index = parseInt(cell.dataset.index);
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            
-            if (gameState.isNightMode) {
-                // Night mode - handle movement
-                if (gameState.playerIsMoving) {
-                    // Check if cell is adjacent to player
-                    const playerRow = gameState.playerPosition.row;
-                    const playerCol = gameState.playerPosition.col;
-                    
-                    const isAdjacent = (
-                        (Math.abs(row - playerRow) <= 1 && Math.abs(col - playerCol) <= 1) && 
-                        !(row === playerRow && col === playerCol)
-                    );
-                    
-                    if (isAdjacent) {
-                        movePlayer(row, col);
-                        gameState.playerIsMoving = false;
-                        moveBtn.textContent = "Select Move Direction";
-                    } else {
-                        showNotification("Can only move to adjacent cells!");
-                    }
-                }
-            } else {
-                // Day mode - normal behavior
-                if (gameState.isOverheated) {
-                    if (cell.textContent === '🧻') {
-                        // Collect toilet paper
-                        collectToiletPaper(cell);
-                    }
-                } else if (cell.classList.contains('has-item')) {
-                    // Get the food item
-                    const item = cell.textContent;
-                    consumeFood(item, index);
-                    cell.textContent = '';
-                    cell.classList.remove('has-item');
-                    
-                    // Create a floating text to show effect
-                    createFloatingText(e.clientX, e.clientY, `+${gameState.gastroIncreaseRate * 5}%!`);
-                    
-                    // Spawn new items
-                    setTimeout(spawnItems, 2000);
-                } else if (cell.classList.contains('danger-zone')) {
-                    // Danger zone clicked - trigger random effect
-                    triggerDangerZoneEffect();
-                    cell.classList.remove('danger-zone');
-                }
-            }
-        }
-        
-        // Toggle between Day and Night Mode
+        const environmentBackground = document.getElementById('environment-background');
+
         function toggleDayNight() {
             gameState.isNightMode = !gameState.isNightMode;
-            
             if (gameState.isNightMode) {
-                // Switch to night mode
                 dayNightToggle.textContent = '🌙';
                 gameModeInfo.textContent = 'Night Mode: Stealth & Combat';
-                gameContainer.classList.remove('day-mode');
-                gameContainer.classList.add('night-mode');
-                
-                // Hide day controls, show night controls
-                dayControls.style.display = 'none';
-                nightControls.style.display = 'flex';
-                
-                // Hide meter
-                document.getElementById('meter-container').style.display = 'none';
-                
-                // Clear grid
-                clearGrid();
-                
-                // Update stats display
-                document.getElementById('score').parentElement.innerHTML = 'Guards Defeated: <span id="score">0</span>';
-                document.getElementById('streak').parentElement.innerHTML = 'Health: <span id="streak">100%</span>';
-                document.getElementById('multiplier').parentElement.innerHTML = 'Alert Level: <span id="multiplier">0</span>';
-                
-                // Reset references to elements that were changed
-                scoreElement = document.getElementById('score');
-                streakElement = document.getElementById('streak');
-                multiplierElement = document.getElementById('multiplier');
+                environmentBackground.style.background = '#1a102c';
             } else {
-                // Switch to day mode
                 dayNightToggle.textContent = '☀️';
                 gameModeInfo.textContent = 'Day Mode: Fart Management';
-                gameContainer.classList.remove('night-mode');
-                gameContainer.classList.add('day-mode');
-                
-                // Show day controls, hide night controls
-                dayControls.style.display = 'flex';
-                nightControls.style.display = 'none';
-                
-                // Show meter
-                document.getElementById('meter-container').style.display = 'block';
-                
-                // Clear grid
-                clearGrid();
-                
-                // Spawn food items
-                if (!gameState.isOverheated) {
-                    spawnItems();
-                } else {
-                    spawnToiletPaper();
-                }
-                
-                // Reset stats display
-                document.getElementById('score').parentElement.innerHTML = 'Score: <span id="score">0</span>';
-                document.getElementById('streak').parentElement.innerHTML = 'Streak: <span id="streak">0</span>';
-                document.getElementById('multiplier').parentElement.innerHTML = 'Multiplier: <span id="multiplier">x1</span>';
-                
-                // Reset references to elements that were changed
-                scoreElement = document.getElementById('score');
-                streakElement = document.getElementById('streak');
-                multiplierElement = document.getElementById('multiplier');
-                
-                // Update stats
-                gameState.score = 0;
-                gameState.streak = 0;
-                gameState.multiplier = 1;
-                updateStats();
+                environmentBackground.style.background = '#3c2157';
             }
         }
-        
-        // Initialize Night Mode
-        function initNightMode() {
-            // Reset night mode state
-            gameState.guardPositions = [];
-            gameState.guardAlertPositions = [];
-            gameState.playerPosition = { row: 2, col: 2 };
-            gameState.playerIsDefending = false;
-            gameState.playerIsMoving = false;
-            gameState.nightModeScore = 0;
-            
-            // Place player in center
-            placePlayerOnGrid();
-            
-            // Spawn guards
-            spawnGuards();
-            
-            // Start guard movement
-            const guardInterval = setInterval(() => {
-                if (gameState.isNightMode) {
-                    moveGuards();
-                } else {
-                    clearInterval(guardInterval);
-                }
-            }, 2000);
-            
-            // Process guard alerts
-            const alertInterval = setInterval(() => {
-                if (gameState.isNightMode) {
-                    processGuardAlerts();
-                } else {
-                    clearInterval(alertInterval);
-                }
-            }, 1000);
-            
-            // Add event listeners for night mode buttons
-            attackBtn.onclick = playerAttack;
-            defendBtn.onclick = playerDefend;
-            moveBtn.onclick = startPlayerMove;
-        }
-        
-        // Process Guard Alerts
-        function processGuardAlerts() {
-            for (let i = gameState.guardAlertPositions.length - 1; i >= 0; i--) {
-                const alert = gameState.guardAlertPositions[i];
-                alert.timeRemaining--;
-                
-                if (alert.timeRemaining <= 0) {
-                    // Time's up - guard attacks!
-                    // Remove alert element
-                    const alertElement = document.querySelector(`.guard-alert[data-guard-id="${alert.guardId}"]`);
-                    if (alertElement) alertElement.remove();
-                    
-                    // Remove from state
-                    gameState.guardAlertPositions.splice(i, 1);
-                    
-                    // Guard attacks!
-                    guardAttack(alert.guardId);
-                }
-            }
-        }
-        
-        // Initialize Day Mode
-        function initDayMode() {
-            // Remove guards
-            const guards = document.querySelectorAll('.guard');
-            guards.forEach(guard => guard.remove());
-            
-            // Remove alerts
-            const alerts = document.querySelectorAll('.guard-alert');
-            alerts.forEach(alert => alert.remove());
-            
-            // Remove flashlight beams
-            const beams = document.querySelectorAll('.flashlight-beam');
-            beams.forEach(beam => beam.remove());
-            
-            // Reset day mode state
-            gameState.gastroLevel = 0;
-            updateMeter();
-            
-            // If overheated, spawn toilet paper, otherwise spawn food
-            if (gameState.isOverheated) {
-                spawnToiletPaper();
-                showOverheatedMessage();
-            } else {
-                // Spawn food items
-                spawnItems();
-            }
-        }
-        
-        // Clear Grid
-        function clearGrid() {
-            const cells = document.querySelectorAll('.grid-cell');
-            cells.forEach(cell => {
-                cell.textContent = '';
-                cell.classList.remove('has-item');
-                cell.classList.remove('danger-zone');
-                cell.classList.remove('player-cell');
-            });
-        }
-        
-        // Place Player on Grid
-        function placePlayerOnGrid() {
-            const row = gameState.playerPosition.row;
-            const col = gameState.playerPosition.col;
-            const index = row * 5 + col;
-            
-            const cells = document.querySelectorAll('.grid-cell');
-            cells.forEach(cell => cell.classList.remove('player-cell'));
-            
-            const cell = document.querySelector(`.grid-cell[data-index="${index}"]`);
-            if (cell) {
-                cell.textContent = '💩';
-                cell.classList.add('player-cell');
-            }
-        }
-        
-        // Move Player
-        function movePlayer(row, col) {
-            gameState.playerPosition = { row, col };
-            placePlayerOnGrid();
-        }
-        
-        // Start Player Move
-        function startPlayerMove() {
-            gameState.playerIsMoving = !gameState.playerIsMoving;
-            if (gameState.playerIsMoving) {
-                moveBtn.textContent = "Cancel Move";
-                showNotification("Click an adjacent cell to move");
-            } else {
-                moveBtn.textContent = "Select Move Direction";
-            }
-        }
-        
-        // Player Defend
-        function playerDefend() {
-            gameState.playerIsDefending = true;
-            showNotification("SHIELD UP! 🛡️ Ready to block flashlight attacks!");
-            
-            // Visual effect for shield
-            countDookie.innerHTML = '💩🛡️';
-            
-            // Automatically reset shield after some time
-            setTimeout(() => {
-                if (gameState.isNightMode) {
-                    gameState.playerIsDefending = false;
-                    countDookie.innerHTML = '💩';
-                    showNotification("Shield down!");
-                }
-            }, 5000);
-        }
-        
-        // Player Attack
-        function playerAttack() {
-            // Check if there are guards adjacent to player
-            const adjacentGuardIds = gameState.guardPositions.map((guard, index) => {
-                const isAdjacent = (
-                    (Math.abs(guard.row - gameState.playerPosition.row) <= 1 && 
-                     Math.abs(guard.col - gameState.playerPosition.col) <= 1) &&
-                    !(guard.row === gameState.playerPosition.row && guard.col === gameState.playerPosition.col)
-                );
-                
-                return isAdjacent ? index : -1;
-            }).filter(id => id !== -1);
-            
-            if (adjacentGuardIds.length > 0) {
-                // Attack the first adjacent guard
-                const guardId = adjacentGuardIds[0];
-                
-                // Remove guard
-                const guardElement = document.querySelector(`.guard[data-id="${guardId}"]`);
-                if (guardElement) guardElement.remove();
-                
-                // Remove from state
-                gameState.guardPositions.splice(guardId, 1);
-                
-                // Update remaining guard IDs
-                const remainingGuards = document.querySelectorAll('.guard');
-                remainingGuards.forEach((guard, index) => {
-                    guard.dataset.id = index;
-                });
-                
-                // Update score
-                gameState.nightModeScore++;
-                scoreElement.textContent = gameState.nightModeScore;
-                
-                // Visual effect
-                showNotification("GUARD DEFEATED! ⚔️");
-                
-                // Check if all guards are defeated
-                if (gameState.guardPositions.length === 0) {
-                    showNotification("ALL GUARDS DEFEATED! YOU WIN! 🏆");
-                    
-                    setTimeout(() => {
-                        alert("You've defeated all the guards! Returning to day mode.");
-                        toggleDayNight(); // Switch back to day mode
-                    }, 2000);
-                } else {
-                    // Spawn a new guard after some time
-                    setTimeout(() => {
-                        if (gameState.isNightMode) {
-                            spawnGuards(1); // Spawn one new guard
-                        }
-                    }, 5000);
-                }
-            } else {
-                showNotification("No guards in range to attack!");
-            }
-        }
-        
-        // Spawn Guards
-        function spawnGuards(count = 0) {
-            // Determine number of guards based on current environment difficulty or specified count
-            const numGuards = count > 0 ? count : gameState.environments[gameState.currentEnvironment].difficulty;
-            
-            for (let i = 0; i < numGuards; i++) {
-                // Choose random position (not on player)
-                let row, col;
-                do {
-                    row = Math.floor(Math.random() * 5);
-                    col = Math.floor(Math.random() * 5);
-                } while (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
-                
-                // Add guard to state
-                gameState.guardPositions.push({ row, col });
-                
-                // Create guard element
-                createGuardElement(row, col, gameState.guardPositions.length - 1);
-            }
-        }
-        
-        // Create Guard Element
-        function createGuardElement(row, col, id) {
-            const guardElement = document.createElement('div');
-            guardElement.className = 'guard';
-            guardElement.textContent = '👮';
-            guardElement.dataset.id = id;
-            
-            // Position guard on grid
-            const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
-            const cellRect = cell.getBoundingClientRect();
-            
-            guardElement.style.left = `${cellRect.left}px`;
-            guardElement.style.top = `${cellRect.top}px`;
-            
-            document.body.appendChild(guardElement);
-        }
-        
-        // Move Guards
-        function moveGuards() {
-            if (!gameState.isNightMode) return;
-            
-            
-            for (let i = 0; i < gameState.guardPositions.length; i++) {
-                const guard = gameState.guardPositions[i];
-                
-                // Determine if guard should move toward player or randomly
-                const moveTowardPlayer = Math.random() > 0.5;
-                
-                let newRow = guard.row;
-                let newCol = guard.col;
-                
-                if (moveTowardPlayer) {
-                    // Move toward player
-                    if (guard.row < gameState.playerPosition.row) newRow++;
-                    else if (guard.row > gameState.playerPosition.row) newRow--;
-                    
-                    if (guard.col < gameState.playerPosition.col) newCol++;
-                    else if (guard.col > gameState.playerPosition.col) newCol--;
-                } else {
-                    // Move randomly
-                    const direction = Math.floor(Math.random() * 4);
-                    switch (direction) {
-                        case 0: newRow = Math.max(0, guard.row - 1); break;  // Up
-                        case 1: newRow = Math.min(4, guard.row + 1); break;  // Down
-                        case 2: newCol = Math.max(0, guard.col - 1); break;  // Left
-                        case 3: newCol = Math.min(4, guard.col + 1); break;  // Right
-                    }
-                }
-                
-                // Check if new position is valid
-                if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
-                    // Check if position is occupied by another guard
-                    const isOccupied = gameState.guardPositions.some((g, index) => 
-                        index !== i && g.row === newRow && g.col === newCol
-                    );
-                    
-                    if (!isOccupied) {
-                        // Update guard position
-                        gameState.guardPositions[i] = { row: newRow, col: newCol };
-                        
-                        // Update guard element position
-                        const guardElement = document.querySelector(`.guard[data-id="${i}"]`);
-                        const cell = document.querySelector(`.grid-cell[data-row="${newRow}"][data-col="${newCol}"]`);
-                        const cellRect = cell.getBoundingClientRect();
-                        
-                        guardElement.style.left = `${cellRect.left}px`;
-                        guardElement.style.top = `${cellRect.top}px`;
-                        
-                        // Check if guard is adjacent to player
-                        const isAdjacent = (
-                            (Math.abs(newRow - gameState.playerPosition.row) <= 1 && 
-                             Math.abs(newCol - gameState.playerPosition.col) <= 1) &&
-                            !(newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col)
-                        );
-                        
-                        if (isAdjacent) {
-                            // Create alert
-                            createGuardAlert(i);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Create Guard Alert
-        function createGuardAlert(guardId) {
-            // Check if alert already exists for this guard
-            if (gameState.guardAlertPositions.some(a => a.guardId === guardId)) return;
-            
-            const guard = gameState.guardPositions[guardId];
-            
-            // Add to alert positions
-            gameState.guardAlertPositions.push({
-                guardId,
-                row: guard.row,
-                col: guard.col,
-                timeRemaining: 2 // 2 seconds until attack
-            });
-            
-            // Create alert element
-            const alertElement = document.createElement('div');
-            alertElement.className = 'guard-alert';
-            alertElement.textContent = '‼️';
-            alertElement.dataset.guardId = guardId;
-            
-            // Position alert on grid
-            const cell = document.querySelector(`.grid-cell[data-row="${guard.row}"][data-col="${guard.col}"]`);
-            const cellRect = cell.getBoundingClientRect();
-            
-            alertElement.style.left = `${cellRect.left + 30}px`;
-            alertElement.style.top = `${cellRect.top - 20}px`;
-            
-            document.body.appendChild(alertElement);
-        }
-        // Guard Attack
-        function guardAttack(guardId) {
-            const guard = gameState.guardPositions[guardId];
-            
-            // Create flashlight beam
-            const beamElement = document.createElement('div');
-            beamElement.className = 'flashlight-beam';
-            
-            // Position beam based on guard position
-            const guardElement = document.querySelector(`.guard[data-id="${guardId}"]`);
-            const guardRect = guardElement.getBoundingClientRect();
-            
-            // Get player position
-            const playerCell = document.querySelector('.grid-cell.player-cell');
-            const playerRect = playerCell.getBoundingClientRect();
-            
-            // Calculate angle and distance from guard to player
-            const dx = playerRect.left - guardRect.left;
-            const dy = playerRect.top - guardRect.top;
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Position and style beam
-            beamElement.style.left = `${guardRect.left + guardRect.width / 2}px`;
-            beamElement.style.top = `${guardRect.top + guardRect.height / 2}px`;
-            beamElement.style.width = `${distance}px`;
-            beamElement.style.height = '50px';
-            beamElement.style.transform = `rotate(${angle}deg)`;
-            
-            document.body.appendChild(beamElement);
-            
-            // Check if player is defending
-            if (gameState.playerIsDefending) {
-                // Player blocks the attack
-                showNotification("Attack Blocked! 🛡️");
-                
-                // Remove defending state
-                gameState.playerIsDefending = false;
-                countDookie.innerHTML = '💩';
-                
-                // Animate shield success
-                countDookie.classList.add('shake');
-                setTimeout(() => countDookie.classList.remove('shake'), 500);
-            } else {
-                // Player gets hit
-                showNotification("YOU GOT HIT BY THE FLASHLIGHT! TURNING TO DUST! ☠️");
-                
-                // Game over for night mode
-                countDookie.innerHTML = '💀';
-                
-                // Disable night controls
-                attackBtn.disabled = true;
-                defendBtn.disabled = true;
-                moveBtn.disabled = true;
-                
-                // Show game over message
-                setTimeout(() => {
-                    alert("Game Over! You were caught by a guard's flashlight!");
-                    toggleDayNight(); // Switch back to day mode
-                }, 1500);
-            }
-            
-            // Remove beam after animation
-            setTimeout(() => {
-                beamElement.remove();
-            }, 1000);
-        }
-        
-        // Spawn Items
-        function spawnItems() {
-            if (gameState.isOverheated) {
-                spawnToiletPaper();
-                return;
-            }
-            
-            // Clear any existing items
-            document.querySelectorAll('.grid-cell.has-item').forEach(cell => {
-                cell.classList.remove('has-item');
-                cell.textContent = '';
-            });
-            
-            // Spawn new items
-            const cells = document.querySelectorAll('.grid-cell:not(.danger-zone)');
-            const numItems = Math.min(5, cells.length);
-            
-            for (let i = 0; i < numItems; i++) {
-                const randomIndex = Math.floor(Math.random() * cells.length);
-                const cell = cells[randomIndex];
-                
-                if (!cell.classList.contains('has-item')) {
-                    const foodItem = gameState.foodItems[Math.floor(Math.random() * gameState.foodItems.length)];
-                    cell.textContent = foodItem;
-                    cell.classList.add('has-item');
-                }
-            }
-        }
-        // Spawn Toilet Paper (for Overheated Mode)
-        function spawnToiletPaper() {
-            // Clear any existing items
-            document.querySelectorAll('.grid-cell.has-item').forEach(cell => {
-                cell.classList.remove('has-item');
-                cell.textContent = '';
-            });
-            
-            // Spawn toilet paper
-            const cells = document.querySelectorAll('.grid-cell:not(.danger-zone)');
-            const numItems = Math.min(5, cells.length);
-            
-            for (let i = 0; i < numItems; i++) {
-                const randomIndex = Math.floor(Math.random() * cells.length);
-                const cell = cells[randomIndex];
-                
-                if (!cell.classList.contains('has-item')) {
-                    cell.textContent = '🧻';
-                    cell.classList.add('has-item');
-                }
-            }
-        }
-        
-        // Collect Toilet Paper
-        function collectToiletPaper(cell) {
-            gameState.toiletPaperCount++;
-            cell.textContent = '';
-            cell.classList.remove('has-item');
-            
-            // Update notification
-            showNotification(`Toilet Paper Collected! ${gameState.toiletPaperCount}/10`);
-            
-            // Create a floating text
-            createFloatingText(
-                cell.getBoundingClientRect().left,
-                cell.getBoundingClientRect().top,
-                '🧻 +1'
-            );
-            
-            // Check if enough toilet paper collected
-            if (gameState.toiletPaperCount >= 10) {
-                // Reset overheated state
-                gameState.isOverheated = false;
-                gameState.overheatedCount = 0;
-                gameState.toiletPaperCount = 0;
-                
-                // Remove overheated message if present
-                const overheatedMsg = document.querySelector('.overheated-message');
-                if (overheatedMsg) overheatedMsg.remove();
-                
-                // Show notification
-                showNotification("SYSTEM COOLED! Back to normal operations!");
-                
-                // Spawn regular items
-                setTimeout(spawnItems, 1000);
-            } else {
-                // Spawn more toilet paper after a delay
-                setTimeout(spawnToiletPaper, 1000);
-            }
-        }
-        
-        // Show Overheated Message
-        function showOverheatedMessage() {
-            // Remove existing message if present
-            const existingMsg = document.querySelector('.overheated-message');
-            if (existingMsg) existingMsg.remove();
-            
-            // Create message
-            const msgElement = document.createElement('div');
-            msgElement.className = 'overheated-message';
-            msgElement.innerHTML = `
-                <h3>SYSTEM OVERHEATED! 🔥</h3>
-                <p>Collect 10 toilet paper rolls to cool down!</p>
-                <p>Collected: ${gameState.toiletPaperCount}/10 🧻</p>
-            `;
-            
-            document.body.appendChild(msgElement);
-            
-            // Update message periodically
-            const updateInterval = setInterval(() => {
-                if (!gameState.isOverheated) {
-                    clearInterval(updateInterval);
-                    msgElement.remove();
-                    return;
-                }
-                
-                msgElement.innerHTML = `
-                    <h3>SYSTEM OVERHEATED! 🔥</h3>
-                    <p>Collect 10 toilet paper rolls to cool down!</p>
-                    <p>Collected: ${gameState.toiletPaperCount}/10 🧻</p>
-                `;
-            }, 1000);
-        }
-        // Create Danger Zone
-        function createDangerZone() {
-            if (gameState.isOverheated || gameState.isNightMode) return;
-            
-            if (Math.random() > 0.7) {
-                const cells = document.querySelectorAll('.grid-cell:not(.has-item):not(.danger-zone)');
-                if (cells.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * cells.length);
-                    const cell = cells[randomIndex];
-                    cell.classList.add('danger-zone');
-                    cell.textContent = '⚠️';
-                    
-                    // Danger zone expires after some time
-                    setTimeout(() => {
-                        if (cell.classList.contains('danger-zone')) {
-                            cell.classList.remove('danger-zone');
-                            cell.textContent = '';
-                        }
-                    }, 5000);
-                }
-            }
-        }
-        
-        // Trigger Danger Zone Effect
-        function triggerDangerZoneEffect() {
-            const effects = [
-                { name: 'Explosive Fart!', action: () => releaseFart(true) },
-                { name: 'Gas Block!', action: () => { gameState.gastroLevel = Math.max(0, gameState.gastroLevel - 30); updateMeter(); } },
-                { name: 'Double Points!', action: () => { gameState.multiplier *= 2; updateStats(); } },
-            ];
-            
-            const randomEffect = effects[Math.floor(Math.random() * effects.length)];
-            showNotification(randomEffect.name);
-            randomEffect.action();
-        }
-        
-        // Trigger Dookie Danger
-        function triggerDookieDanger() {
-            showNotification('DOOKIE DANGER! Gastro meter highly unstable!');
-            
-            // Make the meter flash
-            const originalColor = meterFill.style.background;
-            
-            let flashCount = 0;
-            const flashInterval = setInterval(() => {
-                if (flashCount % 2 === 0) {
-                    meterFill.style.background = 'red';
-                } else {
-                    meterFill.style.background = originalColor;
-                }
-                
-                flashCount++;
-                if (flashCount > 10) {
-                    clearInterval(flashInterval);
-                    meterFill.style.background = originalColor;
-                }
-            }, 200);
-            
-            // Increase gastro level faster for a while
-            const originalRate = gameState.gastroIncreaseRate;
-            gameState.gastroIncreaseRate *= 3;
-            
-            setTimeout(() => {
-                gameState.gastroIncreaseRate = originalRate;
-                showNotification('Dookie Danger over... for now!');
-            }, 8000);
-        }
-```
 
-## Index 6 (Next Part):
-
-```javascript
-        // Consume Food
-        function consumeFood(foodItem, cellIndex) {
-            // Different foods have different effects
-            let increaseFactor = 1;
-            let message = '';
-            
-            switch (foodItem) {
-                case '🥫':
-                    increaseFactor = 1.2;
-                    message = 'Baked beans! Gassy goodness!';
-                    break;
-                case '🌮':
-                    increaseFactor = 1.5;
-                    message = 'Tacos! Extra spicy!';
-                    break;
-                case '🧀':
-                    increaseFactor = 1.8;
-                    triggerDookieDanger();
-                    message = 'CHEESE! Dookie Danger!';
-                    break;
-                case '🥦':
-                    increaseFactor = 1.3;
-                    message = 'Broccoli! Healthy but gassy!';
-                    break;
-                case '🍕':
-                    increaseFactor = 1.4;
-                    message = 'Pizza! Cheesy and troublesome!';
-                    break;
-                case '🍦':
-                    message = 'Ice cream! Lactose trouble!';
-                    increaseFactor = 1.3;
-                    break;
-                case '🥤':
-                    // Carbonated drink - reduce cooldown
-                    increaseFactor = 1.1;
-                    message = 'Carbonated Drink! Rapid fire mode!';
-                    enableRapidFire();
-                    break;
-                case '🌶️':
-                    increaseFactor = 2;
-                    message = 'HOT PEPPER! Explosive incoming!';
-                    break;
-                case '🍩':
-                    increaseFactor = 1.4;
-                    message = 'Donut! Sweet but troublesome!';
-                    break;
-                case '🍗':
-                    increaseFactor = 1.6;
-                    message = 'Chicken! Protein power!';
-                    break;
-            }
-            
-            // Increase gastro level based on food type
-            gameState.gastroLevel += gameState.gastroIncreaseRate * 5 * increaseFactor;
-            if (gameState.gastroLevel > 100) gameState.gastroLevel = 100;
-            
-            // Show notification
-            showNotification(message);
-            
-            // Update meter
-            updateMeter();
-        }
-        
-        // Rapid Fire Mode
-        function enableRapidFire() {
-            const originalCooldown = fartBtn.disabled;
-            
-            // Enable the button if it was disabled
-            fartBtn.disabled = false;
-            fartBtn.textContent = "RAPID FIRE! 💨💨💨";
-            fartBtn.style.backgroundColor = "#ff0000";
-            
-            // Disable rapid fire after 5 seconds
-            setTimeout(() => {
-                fartBtn.textContent = "Fart! 💨";
-                fartBtn.style.backgroundColor = "#ff6090";
-                fartBtn.disabled = originalCooldown;
-            }, 5000);
-        }
-        // Increase Gastro Level
-        function increaseGastroLevel() {
-            if (gameState.isNightMode || gameState.isOverheated) return;
-            
-            gameState.gastroLevel = Math.min(100, gameState.gastroLevel + gameState.gastroIncreaseRate / 2);
-            updateMeter();
-            
-            // If the meter is full, trigger an involuntary fart
-            if (gameState.gastroLevel >= 100) {
-                showNotification('GASTRO OVERLOAD! INVOLUNTARY FART!');
-                releaseFart(true);
-            }
-            
-            // If the meter is very high, make Dookie nervous
-            if (gameState.gastroLevel > 80) {
-                countDookie.classList.add('shake');
-                setTimeout(() => countDookie.classList.remove('shake'), 500);
-            }
-        }
-        
-        // Update Meter
         function updateMeter() {
             meterFill.style.width = `${gameState.gastroLevel}%`;
         }
-        
-        // Update Stats
+
         function updateStats() {
             scoreElement.textContent = gameState.score;
             streakElement.textContent = gameState.streak;
             multiplierElement.textContent = `x${gameState.multiplier}`;
         }
-        
-        // Update Environment Display
-        function updateEnvironmentDisplay() {
-            const environment = gameState.environments[gameState.currentEnvironment];
-            environmentLabel.textContent = `Current Location: ${environment.emoji} ${environment.name}`;
-            const backgroundElement = document.getElementById('environment-background');
-            
-            // Update styling based on environment
-            switch (environment.name) {
-                case 'Castle Banquet Hall':
-                    document.body.style.backgroundColor = '#2c1b47';
-                    backgroundElement.innerHTML = '🏰 🍗 🍖 🍷 🏰 🍗 🍖 🍷 🏰';
-                    backgroundElement.style.backgroundColor = '#45336d';
-                    break;
-                case 'Opera House':
-                    document.body.style.backgroundColor = '#3a0028';
-                    backgroundElement.innerHTML = '🎭 🎻 🎵 🎺 🎭 🎻 🎵 🎺 🎭';
-                    backgroundElement.style.backgroundColor = '#5c1945';
-                    break;
-                case 'Royal Library':
-                    document.body.style.backgroundColor = '#28281e';
-                    backgroundElement.innerHTML = '📚 📜 📕 📖 📚 📜 📕 📖 📚';
-                    backgroundElement.style.backgroundColor = '#3d3d2a';
-                    break;
+
+        function increaseGastroLevel() {
+            if (!gameState.isNightMode) {
+                gameState.gastroLevel = Math.min(100, gameState.gastroLevel + 2);
+                updateMeter();
             }
-        }
-        
-        // Change Environment
-        function changeEnvironment() {
-            gameState.currentEnvironment = (gameState.currentEnvironment + 1) % gameState.environments.length;
-            updateEnvironmentDisplay();
-            showNotification(`New location: ${gameState.environments[gameState.currentEnvironment].name}`);
         }
 
-  // Release Fart
-        function releaseFart(isInvoluntary = false) {
-            if (gameState.gastroLevel < 10 && !isInvoluntary) {
-                showNotification('Not enough gas! Eat something!');
-                return;
-            }
-            
-            // Calculate points based on current gastro level
-            let points = Math.floor(gameState.gastroLevel / 10) * 10;
-            
-            // Apply multiplier
-            points *= gameState.multiplier;
-            
-            // Check for environmental penalties
-            const environment = gameState.environments[gameState.currentEnvironment];
-            if (!isInvoluntary && environment.difficulty > 1) {
-                const noiseLevel = Math.random() * 100;
-                
-                // Higher difficulty environments require more stealth
-                if (noiseLevel > (100 - environment.difficulty * 20)) {
-                    showNotification(`TOO LOUD! ${environment.name} penalty!`);
-                    points = Math.floor(points / environment.difficulty);
-                    resetStreak();
-                }
-            }
-            
-            // Update score
-            gameState.score += points;
-            
-            // Increase streak and multiplier if not involuntary
-            if (!isInvoluntary) {
-                gameState.streak++;
-                if (gameState.streak % 5 === 0) {
-                    gameState.multiplier++;
-                    showNotification(`STREAK BONUS! Multiplier increased to x${gameState.multiplier}`);
-                }
-            } else {
-                // Reset streak on involuntary fart
-                resetStreak();
-                
-                // Track overheated count
-                gameState.overheatedCount++;
-                
-                // Check if system is overheated (3 involuntary farts)
-                if (gameState.overheatedCount >= 3) {
-                    gameState.isOverheated = true;
-                    gameState.toiletPaperCount = 0;
-                    showNotification("SYSTEM OVERHEATED! Collect toilet paper to cool down!");
-                    showOverheatedMessage();
-                    
-                    // Clear grid and spawn toilet paper
-                    clearGrid();
-                    spawnToiletPaper();
-                }
-            }
-            
-            // Create fart animation
-            createFartAnimation();
-            
-            // Create a floating text to show points
-            const dookieRect = countDookie.getBoundingClientRect();
-            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points}`);
-            
-            // Reset gastro level
-            gameState.gastroLevel = 0;
-            updateMeter();
-            
-            // Update stats
-            updateStats();
-            
-            // Disable fart button briefly as cooldown
-            fartBtn.disabled = true;
-            setTimeout(() => {
-                fartBtn.disabled = false;
-            }, 1000);
-        }
-        
-        // Silent But Deadly Fart
-        function silentFart() {
-            if (gameState.gastroLevel < 20) {
-                showNotification('Not enough gas for a silent but deadly! Eat more!');
-                return;
-            }
-            
-            showNotification('SILENT BUT DEADLY! Stealth success!');
-            
-            // Calculate points - SBD gives bonus
-            let points = Math.floor(gameState.gastroLevel / 5) * 15;
-            
-            // Apply multiplier
-            points *= gameState.multiplier;
-            
-            // No environmental penalties for SBD
-            
-            // Update score
-            gameState.score += points;
-            
-            // Increase streak
-            gameState.streak++;
-            if (gameState.streak % 3 === 0) {
-                gameState.multiplier++;
-                showNotification(`STEALTH STREAK! Multiplier increased to x${gameState.multiplier}`);
-            }
-            
-            // Create subtle fart animation (more cloud, less motion)
-            createFartAnimation(true);
-            
-            // Create a floating text to show points
-            const dookieRect = countDookie.getBoundingClientRect();
-            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points} STEALTH!`);
-            
-            // Reduce gastro level (SBD doesn't fully empty)
-            gameState.gastroLevel = Math.max(0, gameState.gastroLevel - 40);
-            updateMeter();
-            
-            // Update stats
-            updateStats();
-            
-            // Disable SBD button for longer cooldown
-            stealthBtn.disabled = true;
-            setTimeout(() => {
-                stealthBtn.disabled = false;
-            }, 3000);
-        }
-        
-        // Hold In Fart
-        function holdFart() {
-            if (gameState.gastroLevel < 30) {
-                showNotification('No need to hold it yet!');
-                return;
-            }
-            
-            showNotification('HOLDING IT IN! Pressure building!');
-            
-            // Holding gives some points but increases pressure
-            let points = Math.floor(gameState.gastroLevel / 10) * 5;
-            
-            // Apply multiplier
-            points *= gameState.multiplier;
-            
-            // Update score
-            gameState.score += points;
-            
-            // Make Dookie shake
-            countDookie.classList.add('shake');
-            setTimeout(() => countDookie.classList.remove('shake'), 1000);
-            
-            // Create a floating text to show points
-            const dookieRect = countDookie.getBoundingClientRect();
-            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points} HOLD!`);
-            
-            // Holding temporarily stops the increase, but then speeds it up after
-            const originalRate = gameState.gastroIncreaseRate;
-            gameState.gastroIncreaseRate = 0;
-            
-            setTimeout(() => {
-                gameState.gastroIncreaseRate = originalRate * 1.5;
-                showNotification('Cannot hold it anymore! Release soon!');
-                
-                // Reset rate after a while
-                setTimeout(() => {
-                    gameState.gastroIncreaseRate = originalRate;
-                }, 3000);
-            }, 2000);
-            
-            // Update stats
-            updateStats();
-            
-            // Disable hold button
-            holdBtn.disabled = true;
-            setTimeout(() => {
-                holdBtn.disabled = false;
-            }, 4000);
-        }
-        
-        // Reset Streak
-        function resetStreak() {
-            gameState.streak = 0;
-            gameState.multiplier = 1;
-            updateStats();
-        }
-        
-        // Create Fart Animation
-        function createFartAnimation(isSilent = false) {
-            const dookieRect = countDookie.getBoundingClientRect();
-            const fartCloud = document.createElement('div');
-            fartCloud.className = 'fart-cloud';
-            
-            // Silent farts are greenish and more cloud-like
-            if (isSilent) {
-                fartCloud.textContent = '☁️';
-                fartCloud.style.color = '#a7f542';
-                fartCloud.style.opacity = '0.7';
-            } else {
-                // Easter egg: vampire bat farts sometimes
-                if (Math.random() > 0.8) {
-                    fartCloud.textContent = '🦇💨';
-                } else {
-                    fartCloud.textContent = '💨';
-                }
-            }
-            
-            fartCloud.style.left = `${dookieRect.left + dookieRect.width / 2}px`;
-            fartCloud.style.top = `${dookieRect.top + dookieRect.height / 2}px`;
-            
-            document.body.appendChild(fartCloud);
-            
-            // Remove after animation
-            setTimeout(() => {
-                document.body.removeChild(fartCloud);
-            }, 2000);
-            
-            // Add shake effect for non-silent farts
-            if (!isSilent) {
-                countDookie.classList.add('shake');
-                setTimeout(() => countDookie.classList.remove('shake'), 500);
-                
-                // Add evil laugh for loud farts
-                if (Math.random() > 0.7) {
-                    const evilLaugh = document.createElement('div');
-                    evilLaugh.className = 'floating-text';
-                    evilLaugh.textContent = 'MUAHAHAHA! 😈';
-                    evilLaugh.style.left = `${dookieRect.left}px`;
-                    evilLaugh.style.top = `${dookieRect.top - 40}px`;
-                    evilLaugh.style.color = '#ff0000';
-                    document.body.appendChild(evilLaugh);
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(evilLaugh);
-                    }, 1500);
-                }
-            }
-        }
-        
-        // Create Floating Text
-        function createFloatingText(x, y, text) {
-            const floatingText = document.createElement('div');
-            floatingText.className = 'floating-text';
-            floatingText.textContent = text;
-            floatingText.style.left = `${x}px`;
-            floatingText.style.top = `${y}px`;
-            
-            document.body.appendChild(floatingText);
-            
-            // Remove after animation
-            setTimeout(() => {
-                document.body.removeChild(floatingText);
-            }, 1000);
-        }
-        
-        // Show Notification
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 2000);
-        }
-        
-        // Event Listeners
-        fartBtn.addEventListener('click', () => releaseFart());
-        holdBtn.addEventListener('click', holdFart);
-        stealthBtn.addEventListener('click', silentFart);
-        environmentLabel.addEventListener('click', changeEnvironment);
-        
-        // Initialize the game
-        initGame();
+        setInterval(increaseGastroLevel, 500);
+        dayNightToggle.addEventListener('click', toggleDayNight);
     </script>
 </body>
 </html>
