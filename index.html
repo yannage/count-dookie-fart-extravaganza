@@ -1,1 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Count Dookie Fart: The Vampire Flatulence Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c1b47;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #3c2157;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            color: #ff6090;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        #count-dookie {
+            font-size: 80px;
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        
+        .vampire-cape {
+            position: absolute;
+            top: -15px;
+            left: -20px;
+            font-size: 120px;
+            z-index: -1;
+            transform: rotate(-10deg);
+            color: #731963;
+        }
+        
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            background-color: #251232;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .grid-cell {
+            background-color: #3e2157;
+            border-radius: 8px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .grid-cell:hover {
+            background-color: #512b6f;
+        }
+        
+        .grid-cell.has-item {
+            background-color: #7e3bad;
+        }
+        
+        .grid-cell.danger-zone {
+            background-color: #c9184a;
+        }
+        
+        #meter-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        #gastro-meter {
+            width: 100%;
+            height: 30px;
+            background-color: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4caf50, #ffc107, #f44336);
+            transition: width 0.3s;
+            border-radius: 15px;
+        }
+        
+        #controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #ff6090;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background-color: #e91e63;
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        #stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background-color: #3e2157;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 100px;
+        }
+        
+        .floating-text {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            animation: float-up 1s forwards;
+            text-shadow: 1px 1px 2px black;
+        }
+        
+        @keyframes float-up {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        .fart-cloud {
+            position: absolute;
+            font-size: 40px;
+            animation: float-away 2s forwards;
+            z-index: 10;
+        }
+        
+        @keyframes float-away {
+            0% {
+                opacity: 0;
+                transform: scale(0.1) translateY(0) translateX(0);
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1) translateY(-20px) translateX(10px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5) translateY(-50px) translateX(30px);
+            }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-3deg); }
+            20%, 40%, 60%, 80% { transform: translateX(5px) rotate(3deg); }
+        }
+        
+        #notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .food-item {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        #environment-label {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Count Dookie Fart</h1>
+        <div id="environment-label">Current Location: Castle Banquet Hall</div>
+        
+        <div id="count-dookie">
+            <div class="vampire-cape">🦇</div>
+            💩
+        </div>
+        
+        <div id="meter-container">
+            <div id="gastro-meter">
+                <div id="meter-fill"></div>
+            </div>
+            <p>Gastro-Meter</p>
+        </div>
+        
+        <div id="controls">
+            <button id="fart-btn">Fart! 💨</button>
+            <button id="hold-btn">Hold It! 😳</button>
+            <button id="stealth-btn">Silent But Deadly 🤫</button>
+        </div>
+        
+        <div id="stats">
+            <div class="stat-box">
+                <div>Score: <span id="score">0</span></div>
+            </div>
+            <div class="stat-box">
+                <div>Streak: <span id="streak">0</span></div>
+            </div>
+            <div class="stat-box">
+                <div>Multiplier: <span id="multiplier">x1</span></div>
+            </div>
+        </div>
+        
+        <div id="game-grid"></div>
+        
+        <div id="notification"></div>
+    </div>
 
+    <script>
+        // Game State
+        const gameState = {
+            score: 0,
+            streak: 0,
+            multiplier: 1,
+            gastroLevel: 0,
+            gastroIncreaseRate: 2, // Percentage increase per second
+            foodItems: ['🥫', '🌮', '🧀', '🥦', '🍕', '🍦', '🥤', '🌶️', '🍩', '🍗'],
+            environments: [
+                { name: 'Castle Banquet Hall', difficulty: 1 },
+                { name: 'Opera House', difficulty: 2 },
+                { name: 'Royal Library', difficulty: 3 }
+            ],
+            currentEnvironment: 0,
+            dangerZones: []
+        };
+        
+        // DOM Elements
+        const countDookie = document.getElementById('count-dookie');
+        const meterFill = document.getElementById('meter-fill');
+        const fartBtn = document.getElementById('fart-btn');
+        const holdBtn = document.getElementById('hold-btn');
+        const stealthBtn = document.getElementById('stealth-btn');
+        const scoreElement = document.getElementById('score');
+        const streakElement = document.getElementById('streak');
+        const multiplierElement = document.getElementById('multiplier');
+        const gameGrid = document.getElementById('game-grid');
+        const notification = document.getElementById('notification');
+        const environmentLabel = document.getElementById('environment-label');
+        
+        // Initialize Game
+        function initGame() {
+            initGrid();
+            updateMeter();
+            spawnItems();
+            
+            // Start the gastro meter fill
+            setInterval(increaseGastroLevel, 500);
+            
+            // Random chance of creating danger zones
+            setInterval(createDangerZone, 3000);
+            
+            updateEnvironmentDisplay();
+        }
+        
+        // Initialize Grid
+        function initGrid() {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                gameGrid.appendChild(cell);
+            }
+        }
+        
+        // Handle Cell Click
+        function handleCellClick(e) {
+            const cell = e.target;
+            const index = cell.dataset.index;
+            
+            if (cell.classList.contains('has-item')) {
+                // Get the food item
+                const item = cell.textContent;
+                consumeFood(item, index);
+                cell.textContent = '';
+                cell.classList.remove('has-item');
+                
+                // Create a floating text to show effect
+                createFloatingText(e.clientX, e.clientY, `+${gameState.gastroIncreaseRate * 5}%!`);
+                
+                // Spawn new items
+                setTimeout(spawnItems, 2000);
+            } else if (cell.classList.contains('danger-zone')) {
+                // Danger zone clicked - trigger random effect
+                triggerDangerZoneEffect();
+                cell.classList.remove('danger-zone');
+            }
+        }
+        
+        // Consume Food
+        function consumeFood(foodItem, cellIndex) {
+            // Different foods have different effects
+            let increaseFactor = 1;
+            let message = '';
+            
+            switch (foodItem) {
+                case '🥫':
+                    increaseFactor = 1.2;
+                    message = 'Baked beans! Gassy goodness!';
+                    break;
+                case '🌮':
+                    increaseFactor = 1.5;
+                    message = 'Tacos! Extra spicy!';
+                    break;
+                case '🧀':
+                    increaseFactor = 1.8;
+                    triggerDookieDanger();
+                    message = 'CHEESE! Dookie Danger!';
+                    break;
+                case '🥦':
+                    increaseFactor = 1.3;
+                    message = 'Broccoli! Healthy but gassy!';
+                    break;
+                case '🍕':
+                    increaseFactor = 1.4;
+                    message = 'Pizza! Cheesy and troublesome!';
+                    break;
+                case '🍦':
+                    message = 'Ice cream! Lactose trouble!';
+                    increaseFactor = 1.3;
+                    break;
+                case '🥤':
+                    // Carbonated drink - reduce cooldown
+                    increaseFactor = 1.1;
+                    message = 'Carbonated Drink! Rapid fire mode!';
+                    enableRapidFire();
+                    break;
+                case '🌶️':
+                    increaseFactor = 2;
+                    message = 'HOT PEPPER! Explosive incoming!';
+                    break;
+                case '🍩':
+                    increaseFactor = 1.4;
+                    message = 'Donut! Sweet but troublesome!';
+                    break;
+                case '🍗':
+                    increaseFactor = 1.6;
+                    message = 'Chicken! Protein power!';
+                    break;
+            }
+            
+            // Increase gastro level based on food type
+            gameState.gastroLevel += gameState.gastroIncreaseRate * 5 * increaseFactor;
+            if (gameState.gastroLevel > 100) gameState.gastroLevel = 100;
+            
+            // Show notification
+            showNotification(message);
+            
+            // Update meter
+            updateMeter();
+        }
+        
+        // Rapid Fire Mode
+        function enableRapidFire() {
+            const originalCooldown = fartBtn.disabled;
+            
+            // Enable the button if it was disabled
+            fartBtn.disabled = false;
+            fartBtn.textContent = "RAPID FIRE! 💨💨💨";
+            fartBtn.style.backgroundColor = "#ff0000";
+            
+            // Disable rapid fire after 5 seconds
+            setTimeout(() => {
+                fartBtn.textContent = "Fart! 💨";
+                fartBtn.style.backgroundColor = "#ff6090";
+                fartBtn.disabled = originalCooldown;
+            }, 5000);
+        }
+        
+        // Spawn Items
+        function spawnItems() {
+            // Clear any existing items
+            document.querySelectorAll('.grid-cell.has-item').forEach(cell => {
+                cell.classList.remove('has-item');
+                cell.textContent = '';
+            });
+            
+            // Spawn new items
+            const cells = document.querySelectorAll('.grid-cell:not(.danger-zone)');
+            const numItems = Math.min(5, cells.length);
+            
+            for (let i = 0; i < numItems; i++) {
+                const randomIndex = Math.floor(Math.random() * cells.length);
+                const cell = cells[randomIndex];
+                
+                if (!cell.classList.contains('has-item')) {
+                    const foodItem = gameState.foodItems[Math.floor(Math.random() * gameState.foodItems.length)];
+                    cell.textContent = foodItem;
+                    cell.classList.add('has-item');
+                }
+            }
+        }
+        
+        // Create Danger Zone
+        function createDangerZone() {
+            if (Math.random() > 0.7) {
+                const cells = document.querySelectorAll('.grid-cell:not(.has-item):not(.danger-zone)');
+                if (cells.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * cells.length);
+                    const cell = cells[randomIndex];
+                    cell.classList.add('danger-zone');
+                    cell.textContent = '⚠️';
+                    
+                    // Danger zone expires after some time
+                    setTimeout(() => {
+                        if (cell.classList.contains('danger-zone')) {
+                            cell.classList.remove('danger-zone');
+                            cell.textContent = '';
+                        }
+                    }, 5000);
+                }
+            }
+        }
+        
+        // Trigger Danger Zone Effect
+        function triggerDangerZoneEffect() {
+            const effects = [
+                { name: 'Explosive Fart!', action: () => releaseFart(true) },
+                { name: 'Gas Block!', action: () => { gameState.gastroLevel = Math.max(0, gameState.gastroLevel - 30); updateMeter(); } },
+                { name: 'Double Points!', action: () => { gameState.multiplier *= 2; updateStats(); } },
+            ];
+            
+            const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+            showNotification(randomEffect.name);
+            randomEffect.action();
+        }
+        
+        // Trigger Dookie Danger
+        function triggerDookieDanger() {
+            showNotification('DOOKIE DANGER! Gastro meter highly unstable!');
+            
+            // Make the meter flash
+            const originalColor = meterFill.style.background;
+            
+            let flashCount = 0;
+            const flashInterval = setInterval(() => {
+                if (flashCount % 2 === 0) {
+                    meterFill.style.background = 'red';
+                } else {
+                    meterFill.style.background = originalColor;
+                }
+                
+                flashCount++;
+                if (flashCount > 10) {
+                    clearInterval(flashInterval);
+                    meterFill.style.background = originalColor;
+                }
+            }, 200);
+            
+            // Increase gastro level faster for a while
+            const originalRate = gameState.gastroIncreaseRate;
+            gameState.gastroIncreaseRate *= 3;
+            
+            setTimeout(() => {
+                gameState.gastroIncreaseRate = originalRate;
+                showNotification('Dookie Danger over... for now!');
+            }, 8000);
+        }
+        
+        // Increase Gastro Level
+        function increaseGastroLevel() {
+            gameState.gastroLevel = Math.min(100, gameState.gastroLevel + gameState.gastroIncreaseRate / 2);
+            updateMeter();
+            
+            // If the meter is full, trigger an involuntary fart
+            if (gameState.gastroLevel >= 100) {
+                showNotification('GASTRO OVERLOAD! INVOLUNTARY FART!');
+                releaseFart(true);
+            }
+            
+            // If the meter is very high, make Dookie nervous
+            if (gameState.gastroLevel > 80) {
+                countDookie.classList.add('shake');
+                setTimeout(() => countDookie.classList.remove('shake'), 500);
+            }
+        }
+        
+        // Update Meter
+        function updateMeter() {
+            meterFill.style.width = `${gameState.gastroLevel}%`;
+        }
+        
+        // Update Stats
+        function updateStats() {
+            scoreElement.textContent = gameState.score;
+            streakElement.textContent = gameState.streak;
+            multiplierElement.textContent = `x${gameState.multiplier}`;
+        }
+        
+        // Release Fart
+        function releaseFart(isInvoluntary = false) {
+            if (gameState.gastroLevel < 10 && !isInvoluntary) {
+                showNotification('Not enough gas! Eat something!');
+                return;
+            }
+            
+            // Calculate points based on current gastro level
+            let points = Math.floor(gameState.gastroLevel / 10) * 10;
+            
+            // Apply multiplier
+            points *= gameState.multiplier;
+            
+            // Check for environmental penalties
+            const environment = gameState.environments[gameState.currentEnvironment];
+            if (!isInvoluntary && environment.difficulty > 1) {
+                const noiseLevel = Math.random() * 100;
+                
+                // Higher difficulty environments require more stealth
+                if (noiseLevel > (100 - environment.difficulty * 20)) {
+                    showNotification(`TOO LOUD! ${environment.name} penalty!`);
+                    points = Math.floor(points / environment.difficulty);
+                    resetStreak();
+                }
+            }
+            
+            // Update score
+            gameState.score += points;
+            
+            // Increase streak and multiplier if not involuntary
+            if (!isInvoluntary) {
+                gameState.streak++;
+                if (gameState.streak % 5 === 0) {
+                    gameState.multiplier++;
+                    showNotification(`STREAK BONUS! Multiplier increased to x${gameState.multiplier}`);
+                }
+            } else {
+                // Reset streak on involuntary fart
+                resetStreak();
+            }
+            
+            // Create fart animation
+            createFartAnimation();
+            
+            // Create a floating text to show points
+            const dookieRect = countDookie.getBoundingClientRect();
+            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points}`);
+            
+            // Reset gastro level
+            gameState.gastroLevel = 0;
+            updateMeter();
+            
+            // Update stats
+            updateStats();
+            
+            // Disable fart button briefly as cooldown
+            fartBtn.disabled = true;
+            setTimeout(() => {
+                fartBtn.disabled = false;
+            }, 1000);
+        }
+        
+        // Silent But Deadly Fart
+        function silentFart() {
+            if (gameState.gastroLevel < 20) {
+                showNotification('Not enough gas for a silent but deadly! Eat more!');
+                return;
+            }
+            
+            showNotification('SILENT BUT DEADLY! Stealth success!');
+            
+            // Calculate points - SBD gives bonus
+            let points = Math.floor(gameState.gastroLevel / 5) * 15;
+            
+            // Apply multiplier
+            points *= gameState.multiplier;
+            
+            // No environmental penalties for SBD
+            
+            // Update score
+            gameState.score += points;
+            
+            // Increase streak
+            gameState.streak++;
+            if (gameState.streak % 3 === 0) {
+                gameState.multiplier++;
+                showNotification(`STEALTH STREAK! Multiplier increased to x${gameState.multiplier}`);
+            }
+            
+            // Create subtle fart animation (more cloud, less motion)
+            createFartAnimation(true);
+            
+            // Create a floating text to show points
+            const dookieRect = countDookie.getBoundingClientRect();
+            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points} STEALTH!`);
+            
+            // Reduce gastro level (SBD doesn't fully empty)
+            gameState.gastroLevel = Math.max(0, gameState.gastroLevel - 40);
+            updateMeter();
+            
+            // Update stats
+            updateStats();
+            
+            // Disable SBD button for longer cooldown
+            stealthBtn.disabled = true;
+            setTimeout(() => {
+                stealthBtn.disabled = false;
+            }, 3000);
+        }
+        
+        // Hold In Fart
+        function holdFart() {
+            if (gameState.gastroLevel < 30) {
+                showNotification('No need to hold it yet!');
+                return;
+            }
+            
+            showNotification('HOLDING IT IN! Pressure building!');
+            
+            // Holding gives some points but increases pressure
+            let points = Math.floor(gameState.gastroLevel / 10) * 5;
+            
+            // Apply multiplier
+            points *= gameState.multiplier;
+            
+            // Update score
+            gameState.score += points;
+            
+            // Make Dookie shake
+            countDookie.classList.add('shake');
+            setTimeout(() => countDookie.classList.remove('shake'), 1000);
+            
+            // Create a floating text to show points
+            const dookieRect = countDookie.getBoundingClientRect();
+            createFloatingText(dookieRect.left + dookieRect.width / 2, dookieRect.top, `+${points} HOLD!`);
+            
+            // Holding temporarily stops the increase, but then speeds it up after
+            const originalRate = gameState.gastroIncreaseRate;
+            gameState.gastroIncreaseRate = 0;
+            
+            setTimeout(() => {
+                gameState.gastroIncreaseRate = originalRate * 1.5;
+                showNotification('Cannot hold it anymore! Release soon!');
+                
+                // Reset rate after a while
+                setTimeout(() => {
+                    gameState.gastroIncreaseRate = originalRate;
+                }, 3000);
+            }, 2000);
+            
+            // Update stats
+            updateStats();
+            
+            // Disable hold button
+            holdBtn.disabled = true;
+            setTimeout(() => {
+                holdBtn.disabled = false;
+            }, 4000);
+        }
+        
+        // Reset Streak
+        function resetStreak() {
+            gameState.streak = 0;
+            gameState.multiplier = 1;
+            updateStats();
+        }
+        
+        // Create Fart Animation
+        function createFartAnimation(isSilent = false) {
+            const dookieRect = countDookie.getBoundingClientRect();
+            const fartCloud = document.createElement('div');
+            fartCloud.className = 'fart-cloud';
+            
+            // Silent farts are greenish and more cloud-like
+            if (isSilent) {
+                fartCloud.textContent = '☁️';
+                fartCloud.style.color = '#a7f542';
+                fartCloud.style.opacity = '0.7';
+            } else {
+                fartCloud.textContent = '💨';
+            }
+            
+            fartCloud.style.left = `${dookieRect.left + dookieRect.width / 2}px`;
+            fartCloud.style.top = `${dookieRect.top + dookieRect.height / 2}px`;
+            
+            document.body.appendChild(fartCloud);
+            
+            // Remove after animation
+            setTimeout(() => {
+                document.body.removeChild(fartCloud);
+            }, 2000);
+            
+            // Add shake effect for non-silent farts
+            if (!isSilent) {
+                countDookie.classList.add('shake');
+                setTimeout(() => countDookie.classList.remove('shake'), 500);
+            }
+        }
+        
+        // Create Floating Text
+        function createFloatingText(x, y, text) {
+            const floatingText = document.createElement('div');
+            floatingText.className = 'floating-text';
+            floatingText.textContent = text;
+            floatingText.style.left = `${x}px`;
+            floatingText.style.top = `${y}px`;
+            
+            document.body.appendChild(floatingText);
+            
+            // Remove after animation
+            setTimeout(() => {
+                document.body.removeChild(floatingText);
+            }, 1000);
+        }
+        
+        // Show Notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Change Environment
+        function changeEnvironment() {
+            gameState.currentEnvironment = (gameState.currentEnvironment + 1) % gameState.environments.length;
+            updateEnvironmentDisplay();
+            showNotification(`New location: ${gameState.environments[gameState.currentEnvironment].name}`);
+        }
+        
+        // Update Environment Display
+        function updateEnvironmentDisplay() {
+            const environment = gameState.environments[gameState.currentEnvironment];
+            environmentLabel.textContent = `Current Location: ${environment.name}`;
+            
+            // Update styling based on environment
+            switch (environment.name) {
+                case 'Castle Banquet Hall':
+                    document.body.style.backgroundColor = '#2c1b47';
+                    break;
+                case 'Opera House':
+                    document.body.style.backgroundColor = '#3a0028';
+                    break;
+                case 'Royal Library':
+                    document.body.style.backgroundColor = '#28281e';
+                    break;
+            }
+        }
+        
+        // Event Listeners
+        fartBtn.addEventListener('click', () => releaseFart());
+        holdBtn.addEventListener('click', holdFart);
+        stealthBtn.addEventListener('click', silentFart);
+        environmentLabel.addEventListener('click', changeEnvironment);
+        
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>
