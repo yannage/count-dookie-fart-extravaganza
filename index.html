@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Count Dookie Night Mode</title>
+    <title>Count Dookie Turn-Based Night Mode</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,6 +81,10 @@
             background-color: #b5179e;
         }
         
+        .grid-cell.pickup-cell {
+            background-color: #4cc9f0;
+        }
+        
         .grid-cell.adjacent-cell {
             border: 2px solid yellow;
         }
@@ -94,31 +98,19 @@
             font-size: 18px;
         }
         
-        .flashlight-beam {
+        .light-beam {
             position: absolute;
-            background: radial-gradient(circle, rgba(255, 255, 180, 0.8) 0%, transparent 70%);
-            width: 100%;
-            height: 100%;
+            background-color: rgba(255, 255, 180, 0.4);
+            transform-origin: 0 0;
             z-index: 10;
-            border-radius: 8px;
-            opacity: 0;
             pointer-events: none;
-        }
-        
-        @keyframes flash {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        
-        .flashing {
-            animation: flash 0.8s ease-in-out;
         }
         
         #controls {
             margin: 20px 0;
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
         }
         
         button {
@@ -126,11 +118,17 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            margin: 0 10px;
+            margin: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+        }
+        
+        button:disabled {
+            background-color: #514766;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         
         #attack-btn {
@@ -141,10 +139,16 @@
             background-color: #4361ee;
         }
         
+        #special-btn {
+            background-color: #ff9e00;
+            display: none;
+        }
+        
         #stats {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .stat-box {
@@ -152,6 +156,45 @@
             padding: 10px;
             border-radius: 8px;
             min-width: 100px;
+            margin: 5px;
+        }
+        
+        #turn-info {
+            background-color: #4cc9f0;
+            color: #1a102c;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #timer {
+            font-size: 24px;
+            background-color: #ff6090;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #special-meter-container {
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        #special-meter {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff9e00, #ff4d00);
+            transition: width 0.3s;
         }
         
         #notification {
@@ -216,7 +259,7 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>Count Dookie: Night Stealth</h1>
+        <h1>Count Dookie: Turn-Based Mode</h1>
         <div id="environment-label">Current Location: 🏰 Castle Banquet Hall</div>
         
         <div id="environment-background">🏰 🍗 🍖 🍷 🏰 🍗 🍖 🍷 🏰</div>
@@ -224,27 +267,49 @@
         <div id="instructions">
             <strong>How to Play:</strong>
             <ul>
-                <li>Click on adjacent tiles to move Count Dookie 💩</li>
-                <li>Use "Attack!" when next to a guard 👮 to defeat them</li>
-                <li>Use "Defend!" when a guard shows an alert ‼️ to block their flashlight</li>
-                <li>Avoid getting hit by flashlights - they drain your health!</li>
+                <li>Each turn lasts 5 seconds - use your actions wisely!</li>
+                <li>You have 3 actions per turn:
+                    <ul>
+                        <li>Attack: 1 action</li>
+                        <li>Defend: 2 actions</li>
+                        <li>Move: 1 action per step</li>
+                    </ul>
+                </li>
+                <li>Collect 🧀 or 🥫 to restore HP</li>
+                <li>Collect 🧻 to fill your special meter</li>
+                <li>Use your special move to defeat all guards at once!</li>
             </ul>
         </div>
         
+        <div id="turn-info">
+            <span>Your Turn - <span id="actions-left">3</span> actions left</span>
+            <div id="timer">5</div>
+        </div>
+        
         <div id="controls">
-            <button id="attack-btn">Attack! ⚔️</button>
-            <button id="defend-btn">Defend! 🛡️</button>
+            <button id="attack-btn">Attack! ⚔️ (1)</button>
+            <button id="defend-btn">Defend! 🛡️ (2)</button>
+            <button id="end-turn-btn">End Turn</button>
+            <button id="special-btn">Special Move! 💩 (3)</button>
         </div>
         
         <div id="stats">
             <div class="stat-box">
-                <div>Guards Defeated: <span id="guards-defeated">0</span></div>
+                <div>HP: <span id="health">10</span>/10</div>
             </div>
             <div class="stat-box">
-                <div>Health: <span id="health">100%</span></div>
+                <div>Guards: <span id="guards-count">0</span></div>
             </div>
             <div class="stat-box">
-                <div>Alert Level: <span id="alert-level">0</span></div>
+                <div>Level: <span id="level">1</span></div>
+            </div>
+            <div class="stat-box">
+                <div>
+                    Special: <span id="special-count">0</span>/5
+                    <div id="special-meter-container">
+                        <div id="special-meter"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -261,28 +326,41 @@
     <script>
         // Game State
         const gameState = {
-            guardsDefeated: 0,
-            health: 100,
-            alertLevel: 0,
+            playerHP: 10,
+            maxHP: 10,
+            actionsLeft: 3,
             playerPosition: { row: 2, col: 2 },
             playerIsDefending: false,
             guardPositions: [],
-            guardAlertPositions: [],
+            pickupPositions: [],
+            specialMeter: 0,
+            maxSpecialMeter: 5,
+            currentLevel: 1,
             currentEnvironment: 0,
             environments: [
                 { name: 'Castle Banquet Hall', difficulty: 1, emoji: '🏰' },
                 { name: 'Opera House', difficulty: 2, emoji: '🎭' },
                 { name: 'Royal Library', difficulty: 3, emoji: '📚' }
             ],
+            isPlayerTurn: true,
+            turnTimer: 5,
+            timerInterval: null,
             gameOver: false
         };
         
         // DOM Elements
         const attackBtn = document.getElementById('attack-btn');
         const defendBtn = document.getElementById('defend-btn');
-        const guardsDefeatedElement = document.getElementById('guards-defeated');
+        const endTurnBtn = document.getElementById('end-turn-btn');
+        const specialBtn = document.getElementById('special-btn');
         const healthElement = document.getElementById('health');
-        const alertLevelElement = document.getElementById('alert-level');
+        const guardsCountElement = document.getElementById('guards-count');
+        const levelElement = document.getElementById('level');
+        const specialCountElement = document.getElementById('special-count');
+        const specialMeterElement = document.getElementById('special-meter');
+        const actionsLeftElement = document.getElementById('actions-left');
+        const timerElement = document.getElementById('timer');
+        const turnInfoElement = document.getElementById('turn-info');
         const gameGrid = document.getElementById('game-grid');
         const notification = document.getElementById('notification');
         const environmentLabel = document.getElementById('environment-label');
@@ -294,14 +372,22 @@
         // Initialize Game
         function initGame() {
             // Reset game state
-            gameState.guardsDefeated = 0;
-            gameState.health = 100;
-            gameState.alertLevel = 0;
+            gameState.playerHP = 10;
+            gameState.actionsLeft = 3;
             gameState.playerPosition = { row: 2, col: 2 };
             gameState.playerIsDefending = false;
             gameState.guardPositions = [];
-            gameState.guardAlertPositions = [];
+            gameState.pickupPositions = [];
+            gameState.specialMeter = 0;
+            gameState.currentLevel = 1;
+            gameState.isPlayerTurn = true;
+            gameState.turnTimer = 5;
             gameState.gameOver = false;
+            
+            // Clear any existing timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
             
             // Initialize grid
             initGrid();
@@ -313,37 +399,24 @@
             // Place player and guards
             updateGridDisplay();
             spawnGuards();
+            spawnPickups();
             
-            // Start guard movement
-            const guardInterval = setInterval(() => {
-                if (!gameState.gameOver) {
-                    moveGuards();
-                } else {
-                    clearInterval(guardInterval);
-                }
-            }, 2000);
-            
-            // Process guard alerts
-            const alertInterval = setInterval(() => {
-                if (!gameState.gameOver) {
-                    processGuardAlerts();
-                } else {
-                    clearInterval(alertInterval);
-                }
-            }, 1000);
+            // Start player turn
+            startPlayerTurn();
             
             // Add event listeners
             attackBtn.onclick = playerAttack;
             defendBtn.onclick = playerDefend;
+            endTurnBtn.onclick = endPlayerTurn;
+            specialBtn.onclick = useSpecialMove;
             environmentLabel.onclick = changeEnvironment;
             restartBtn.onclick = restartGame;
             
             // Hide game over screen
             gameOverScreen.style.display = 'none';
             
-            // Enable buttons
-            attackBtn.disabled = false;
-            defendBtn.disabled = false;
+            // Update special button
+            updateSpecialButton();
         }
         
         // Initialize Grid
@@ -357,12 +430,6 @@
                     cell.dataset.index = index;
                     cell.dataset.row = row;
                     cell.dataset.col = col;
-                    
-                    // Add flashlight beam element
-                    const beam = document.createElement('div');
-                    beam.className = 'flashlight-beam';
-                    cell.appendChild(beam);
-                    
                     cell.addEventListener('click', handleCellClick);
                     gameGrid.appendChild(cell);
                 }
@@ -374,12 +441,12 @@
             // Clear all grid cells
             const cells = document.querySelectorAll('.grid-cell');
             cells.forEach(cell => {
-                cell.classList.remove('player-cell', 'guard-cell', 'alert-cell', 'adjacent-cell');
-                // Keep the flashlight beam div, but remove other content
-                const beam = cell.querySelector('.flashlight-beam');
-                cell.innerHTML = '';
-                if (beam) cell.appendChild(beam);
+                cell.classList.remove('player-cell', 'guard-cell', 'pickup-cell', 'adjacent-cell');
+                cell.textContent = '';
             });
+            
+            // Remove any light beams
+            document.querySelectorAll('.light-beam').forEach(beam => beam.remove());
             
             // Place player
             const playerRow = gameState.playerPosition.row;
@@ -388,16 +455,16 @@
             
             if (playerCell) {
                 playerCell.classList.add('player-cell');
-                const content = document.createElement('span');
                 if (gameState.playerIsDefending) {
-                    content.textContent = '💩🛡️';
+                    playerCell.textContent = '💩🛡️';
                 } else {
-                    content.textContent = '💩';
+                    playerCell.textContent = '💩';
                 }
-                playerCell.appendChild(content);
                 
                 // Highlight adjacent cells that are valid for movement
-                highlightAdjacentCells(playerRow, playerCol);
+                if (gameState.isPlayerTurn && gameState.actionsLeft > 0) {
+                    highlightAdjacentCells(playerRow, playerCol);
+                }
             }
             
             // Place guards
@@ -405,23 +472,21 @@
                 const guardCell = document.querySelector(`.grid-cell[data-row="${guard.row}"][data-col="${guard.col}"]`);
                 if (guardCell) {
                     guardCell.classList.add('guard-cell');
-                    const content = document.createElement('span');
-                    content.textContent = '👮';
-                    guardCell.appendChild(content);
+                    guardCell.textContent = '👮';
                 }
             });
             
-            // Place alerts
-            gameState.guardAlertPositions.forEach(alert => {
-                const guardId = alert.guardId;
-                const guard = gameState.guardPositions[guardId];
-                if (guard) {
-                    const alertCell = document.querySelector(`.grid-cell[data-row="${guard.row}"][data-col="${guard.col}"]`);
-                    if (alertCell) {
-                        alertCell.classList.add('alert-cell');
-                    }
+            // Place pickups
+            gameState.pickupPositions.forEach(pickup => {
+                const pickupCell = document.querySelector(`.grid-cell[data-row="${pickup.row}"][data-col="${pickup.col}"]`);
+                if (pickupCell) {
+                    pickupCell.classList.add('pickup-cell');
+                    pickupCell.textContent = pickup.type;
                 }
             });
+            
+            // Update guard count
+            guardsCountElement.textContent = gameState.guardPositions.length;
         }
         
         // Highlight Adjacent Cells
@@ -448,7 +513,7 @@
         
         // Handle Cell Click
         function handleCellClick(e) {
-            if (gameState.gameOver) return;
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft <= 0) return;
             
             let cell = e.target;
             // Make sure we're working with the grid cell, not a child element
@@ -475,8 +540,23 @@
                 guard.row === row && guard.col === col
             );
             
+            // Check if cell has a pickup
+            const pickup = gameState.pickupPositions.find(p => p.row === row && p.col === col);
+            
             if (isAdjacent && !isOccupiedByGuard) {
-                movePlayer(row, col);
+                // Move player
+                if (gameState.actionsLeft >= 1) {
+                    movePlayer(row, col);
+                    gameState.actionsLeft -= 1;
+                    updateActionsLeft();
+                    
+                    // Check if moved to a pickup
+                    if (pickup) {
+                        collectPickup(pickup);
+                    }
+                } else {
+                    showNotification("Not enough actions left!");
+                }
             } else if (isOccupiedByGuard && isAdjacent) {
                 // If clicking on an adjacent guard, attack it
                 playerAttack();
@@ -490,56 +570,375 @@
             }
         }
         
+        // Start Player Turn
+        function startPlayerTurn() {
+            gameState.isPlayerTurn = true;
+            gameState.actionsLeft = 3;
+            gameState.playerIsDefending = false;
+            gameState.turnTimer = 5;
+            
+            // Update UI
+            turnInfoElement.style.backgroundColor = '#4cc9f0';
+            turnInfoElement.firstElementChild.textContent = `Your Turn - ${gameState.actionsLeft} actions left`;
+            updateActionsLeft();
+            updateGridDisplay();
+            
+            // Enable buttons
+            attackBtn.disabled = false;
+            defendBtn.disabled = false;
+            endTurnBtn.disabled = false;
+            specialBtn.disabled = gameState.specialMeter < gameState.maxSpecialMeter;
+            
+            // Start timer
+            startTurnTimer();
+            
+            showNotification("Your Turn! You have 5 seconds.");
+        }
+        
+        // Start Turn Timer
+        function startTurnTimer() {
+            // Clear any existing timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            timerElement.textContent = gameState.turnTimer;
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.turnTimer--;
+                timerElement.textContent = gameState.turnTimer;
+                
+                if (gameState.turnTimer <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    
+                    if (gameState.isPlayerTurn) {
+                        endPlayerTurn();
+                    } else {
+                        endGuardTurn();
+                    }
+                }
+            }, 1000);
+        }
+        
+        // End Player Turn
+        function endPlayerTurn() {
+            gameState.isPlayerTurn = false;
+            
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Update UI
+            turnInfoElement.style.backgroundColor = '#c9184a';
+            turnInfoElement.firstElementChild.textContent = "Enemy Turn";
+            
+            // Disable buttons
+            attackBtn.disabled = true;
+            defendBtn.disabled = true;
+            endTurnBtn.disabled = true;
+            specialBtn.disabled = true;
+            
+            // Start guard turn after a short delay
+            setTimeout(() => {
+                startGuardTurn();
+            }, 1000);
+            
+            showNotification("Enemy Turn!");
+        }
+        
+        // Start Guard Turn
+        function startGuardTurn() {
+            gameState.turnTimer = 3; // Guards get a shorter turn
+            
+            // Update UI
+            timerElement.textContent = gameState.turnTimer;
+            
+            // Start timer
+            startTurnTimer();
+            
+            // Process guard actions
+            processGuardActions();
+        }
+        
+        // Process Guard Actions
+        function processGuardActions() {
+            // Each guard gets 2 actions
+            const guardActions = [];
+            
+            // Plan all guard actions first
+            gameState.guardPositions.forEach((guard, idx) => {
+                const actions = planGuardActions(guard, idx);
+                guardActions.push(...actions);
+            });
+            
+            // Execute guard actions one by one with delay
+            executeGuardActions(guardActions);
+        }
+        
+        // Plan Guard Actions
+        function planGuardActions(guard, guardId) {
+            const actions = [];
+            const playerRow = gameState.playerPosition.row;
+            const playerCol = gameState.playerPosition.col;
+            
+            // Check if guard is adjacent to player
+            const isAdjacent = (
+                (Math.abs(guard.row - playerRow) <= 1 && 
+                 Math.abs(guard.col - playerCol) <= 1) &&
+                !(guard.row === playerRow && guard.col === playerCol)
+            );
+            
+            if (isAdjacent) {
+                // Guard will attack if adjacent
+                actions.push({ 
+                    type: 'attack', 
+                    guardId 
+                });
+                // Second action is to move away
+                actions.push({ 
+                    type: 'move', 
+                    guardId,
+                    direction: getRandomDirection(guard)
+                });
+            } else {
+                // Move toward player
+                const directionToPlayer = getDirectionToPlayer(guard);
+                actions.push({
+                    type: 'move',
+                    guardId,
+                    direction: directionToPlayer
+                });
+                
+                // Check if now adjacent after theoretical move
+                const newRow = guard.row + directionToPlayer.rowDiff;
+                const newCol = guard.col + directionToPlayer.colDiff;
+                
+                const wouldBeAdjacent = (
+                    (Math.abs(newRow - playerRow) <= 1 && 
+                     Math.abs(newCol - playerCol) <= 1) &&
+                    !(newRow === playerRow && newCol === playerCol)
+                );
+                
+                if (wouldBeAdjacent) {
+                    // Would be adjacent after move, so attack
+                    actions.push({
+                        type: 'attack',
+                        guardId
+                    });
+                } else {
+                    // Move again toward player
+                    actions.push({
+                        type: 'move',
+                        guardId,
+                        direction: getDirectionToPlayer({ row: newRow, col: newCol })
+                    });
+                }
+            }
+            
+            return actions;
+        }
+        
+        // Get Direction to Player
+        function getDirectionToPlayer(guard) {
+            const playerRow = gameState.playerPosition.row;
+            const playerCol = gameState.playerPosition.col;
+            
+            let rowDiff = 0;
+            let colDiff = 0;
+            
+            if (guard.row < playerRow) rowDiff = 1;
+            else if (guard.row > playerRow) rowDiff = -1;
+            
+            if (guard.col < playerCol) colDiff = 1;
+            else if (guard.col > playerCol) colDiff = -1;
+            
+            return { rowDiff, colDiff };
+        }
+        
+        // Get Random Direction
+        function getRandomDirection(guard) {
+            const directions = [
+                { rowDiff: -1, colDiff: 0 },  // Up
+                { rowDiff: 1, colDiff: 0 },   // Down
+                { rowDiff: 0, colDiff: -1 },  // Left
+                { rowDiff: 0, colDiff: 1 }    // Right
+            ];
+            
+            // Shuffle directions
+            for (let i = directions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [directions[i], directions[j]] = [directions[j], directions[i]];
+            }
+            
+            // Find first valid direction
+            for (const dir of directions) {
+                const newRow = guard.row + dir.rowDiff;
+                const newCol = guard.col + dir.colDiff;
+                
+                // Check if valid position
+                if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                    // Check if occupied
+                    const isOccupied = gameState.guardPositions.some(g => 
+                        g.row === newRow && g.col === newCol
+                    ) || (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                    
+                    if (!isOccupied) {
+                        return dir;
+                    }
+                }
+            }
+            
+            // If no valid direction, return no movement
+            return { rowDiff: 0, colDiff: 0 };
+        }
+        
+        // Execute Guard Actions
+        function executeGuardActions(actions) {
+            if (actions.length === 0) {
+                // All actions complete, end guard turn
+                endGuardTurn();
+                return;
+            }
+            
+            const action = actions.shift();
+            
+            // Execute action
+            switch (action.type) {
+                case 'move':
+                    guardMove(action.guardId, action.direction);
+                    break;
+                case 'attack':
+                    guardAttack(action.guardId);
+                    break;
+            }
+            
+            // Execute next action after delay
+            setTimeout(() => {
+                executeGuardActions(actions);
+            }, 500);
+        }
+        
+        // Guard Move
+        function guardMove(guardId, direction) {
+            // Guard might have been removed
+            if (guardId >= gameState.guardPositions.length) return;
+            
+            const guard = gameState.guardPositions[guardId];
+            const newRow = guard.row + direction.rowDiff;
+            const newCol = guard.col + direction.colDiff;
+            
+            // Check if valid position
+            if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                // Check if occupied
+                const isOccupied = gameState.guardPositions.some(g => 
+                    g.row === newRow && g.col === newCol
+                ) || (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                
+                if (!isOccupied) {
+                    // Update guard position
+                    gameState.guardPositions[guardId] = { row: newRow, col: newCol };
+                    updateGridDisplay();
+                }
+            }
+        }
+        
+        // Guard Attack
+        function guardAttack(guardId) {
+            // Guard might have been removed
+            if (guardId >= gameState.guardPositions.length) return;
+            
+            const guard = gameState.guardPositions[guardId];
+            
+            // Check if adjacent to player
+            const playerRow = gameState.playerPosition.row;
+            const playerCol = gameState.playerPosition.col;
+            
+            const isAdjacent = (
+                (Math.abs(guard.row - playerRow) <= 1 && 
+                 Math.abs(guard.col - playerCol) <= 1) &&
+                !(guard.row === playerRow && guard.col === playerCol)
+            );
+            
+            if (!isAdjacent) return;
+            
+            // Create light beam effect
+            createLightBeam(guard, gameState.playerPosition);
+            
+            // Check if player is defending
+            if (gameState.playerIsDefending) {
+                showNotification("Attack Blocked! 🛡️");
+            } else {
+                // Player takes damage
+                gameState.playerHP -= 1;
+                updateStats();
+                
+                showNotification("You got hit! -1 HP");
+                
+                // Check if player is dead
+                if (gameState.playerHP <= 0) {
+                    gameOver(false);
+                }
+            }
+        }
+        
+        // Create Light Beam
+        function createLightBeam(from, to) {
+            // Get cell positions
+            const fromCell = document.querySelector(`.grid-cell[data-row="${from.row}"][data-col="${from.col}"]`);
+            const toCell = document.querySelector(`.grid-cell[data-row="${to.row}"][data-col="${to.col}"]`);
+            
+            if (!fromCell || !toCell) return;
+            
+            const fromRect = fromCell.getBoundingClientRect();
+            const toRect = toCell.getBoundingClientRect();
+            
+            // Calculate beam properties
+            const fromX = fromRect.left + fromRect.width / 2;
+            const fromY = fromRect.top + fromRect.height / 2;
+            const toX = toRect.left + toRect.width / 2;
+            const toY = toRect.top + toRect.height / 2;
+            
+            const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
+            const distance = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
+            
+            // Create beam element
+            const beam = document.createElement('div');
+            beam.className = 'light-beam';
+            beam.style.width = `${distance}px`;
+            beam.style.height = '10px';
+            beam.style.left = `${fromX}px`;
+            beam.style.top = `${fromY}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            
+            document.body.appendChild(beam);
+            
+            // Remove beam after animation
+            setTimeout(() => {
+                beam.remove();
+            }, 800);
+        }
+        
+        // End Guard Turn
+        function endGuardTurn() {
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Start player turn
+            startPlayerTurn();
+        }
+        
         // Move Player
         function movePlayer(row, col) {
             gameState.playerPosition = { row, col };
             updateGridDisplay();
-            
-            // Check if player is near a guard
-            checkForGuardsNearby();
-        }
-        
-        // Check if guards are nearby
-        function checkForGuardsNearby() {
-            const playerRow = gameState.playerPosition.row;
-            const playerCol = gameState.playerPosition.col;
-            
-            gameState.guardPositions.forEach((guard, index) => {
-                const isAdjacent = (
-                    (Math.abs(guard.row - playerRow) <= 1 && 
-                     Math.abs(guard.col - playerCol) <= 1) &&
-                    !(guard.row === playerRow && guard.col === playerCol)
-                );
-                
-                if (isAdjacent) {
-                    createGuardAlert(index);
-                }
-            });
-        }
-        
-        // Player Defend
-        function playerDefend() {
-            if (gameState.gameOver) return;
-            
-            gameState.playerIsDefending = true;
-            showNotification("SHIELD UP! 🛡️ Ready to block flashlight attacks!");
-            
-            // Update player display
-            updateGridDisplay();
-            
-            // Automatically reset shield after some time
-            setTimeout(() => {
-                if (!gameState.gameOver) {
-                    gameState.playerIsDefending = false;
-                    updateGridDisplay();
-                    showNotification("Shield down!");
-                }
-            }, 5000);
         }
         
         // Player Attack
         function playerAttack() {
-            if (gameState.gameOver) return;
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 1) return;
             
             // Check if there are guards adjacent to player
             const adjacentGuardIds = [];
@@ -558,30 +957,18 @@
             }
             
             if (adjacentGuardIds.length > 0) {
+                // Attack costs 1 action
+                gameState.actionsLeft -= 1;
+                updateActionsLeft();
+                
                 // Attack the first adjacent guard
                 const guardId = adjacentGuardIds[0];
                 
                 // Remove guard from state
                 gameState.guardPositions.splice(guardId, 1);
                 
-                // Remove matching alert positions
-                gameState.guardAlertPositions = gameState.guardAlertPositions.filter(
-                    alert => alert.guardId !== guardId
-                );
-                
-                // Update alert IDs after removal
-                gameState.guardAlertPositions.forEach(alert => {
-                    if (alert.guardId > guardId) {
-                        alert.guardId--;
-                    }
-                });
-                
                 // Update grid display
                 updateGridDisplay();
-                
-                // Update score
-                gameState.guardsDefeated++;
-                updateStats();
                 
                 // Visual effect
                 showNotification("GUARD DEFEATED! ⚔️");
@@ -590,13 +977,16 @@
                 if (gameState.guardPositions.length === 0) {
                     showNotification("ALL GUARDS DEFEATED! LEVEL CLEAR! 🏆");
                     
-                    // Increase difficulty by changing environment
+                    // Increase level and difficulty
                     setTimeout(() => {
                         if (!gameState.gameOver) {
+                            gameState.currentLevel++;
                             changeEnvironment();
                             
-                            // Spawn new guards for next level
+                            // Spawn new guards and pickups for next level
                             spawnGuards();
+                            spawnPickups();
+                            updateStats();
                         }
                     }, 2000);
                 }
@@ -605,26 +995,105 @@
             }
         }
         
+        // Player Defend
+        function playerDefend() {
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 2) {
+                showNotification("Not enough actions to defend!");
+                return;
+            }
+            
+            gameState.playerIsDefending = true;
+            showNotification("SHIELD UP! 🛡️ Ready to block flashlight attacks!");
+            
+            // Defend costs 2 actions
+            gameState.actionsLeft -= 2;
+            updateActionsLeft();
+            
+            // Update player display
+            updateGridDisplay();
+        }
+        
+        // Use Special Move
+        function useSpecialMove() {
+            if (gameState.gameOver || !gameState.isPlayerTurn || gameState.specialMeter < gameState.maxSpecialMeter) {
+                return;
+            }
+            
+            // Special move costs 3 actions
+            if (gameState.actionsLeft < 3) {
+                showNotification("Not enough actions for special move!");
+                return;
+            }
+            
+            // Use all actions
+            gameState.actionsLeft = 0;
+            updateActionsLeft();
+            
+            // Reset special meter
+            gameState.specialMeter = 0;
+            updateSpecialMeter();
+            
+            // Defeat all guards
+            const guardCount = gameState.guardPositions.length;
+            gameState.guardPositions = [];
+            
+            // Show special effects
+            showNotification(`SPECIAL MOVE! Defeated ${guardCount} guards!`);
+            
+            // Fill grid with poop emoji temporarily
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                if (!cell.classList.contains('player-cell')) {
+                    cell.textContent = '💩';
+                    cell.style.backgroundColor = '#6247aa';
+                }
+            });
+            
+            // Clear grid after effect
+            setTimeout(() => {
+                updateGridDisplay();
+                
+                // Go to next level
+                gameState.currentLevel++;
+                changeEnvironment();
+                
+                // Spawn new guards and pickups for next level
+                spawnGuards();
+                spawnPickups();
+                updateStats();
+            }, 2000);
+        }
+        
         // Spawn Guards
         function spawnGuards() {
             // Clear existing guards
             gameState.guardPositions = [];
-            gameState.guardAlertPositions = [];
             
-            // Determine number of guards based on current environment difficulty
-            const environment = gameState.environments[gameState.currentEnvironment];
-            const numGuards = environment.difficulty + 1;
+            // Determine number of guards based on current level
+            const numGuards = gameState.currentLevel + 1;
             
             for (let i = 0; i < numGuards; i++) {
-                // Choose random position (not on player)
+                // Choose random position (not on player or pickup)
                 let row, col;
-                do {
+                let valid = false;
+                
+                while (!valid) {
                     row = Math.floor(Math.random() * 5);
                     col = Math.floor(Math.random() * 5);
-                } while (
-                    (row === gameState.playerPosition.row && col === gameState.playerPosition.col) ||
-                    gameState.guardPositions.some(g => g.row === row && g.col === col)
-                );
+                    
+                    // Check if position is valid
+                    const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
+                    const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
+                    const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                    
+                    // Also ensure not adjacent to player at start
+                    const isAdjacentToPlayer = (
+                        (Math.abs(row - gameState.playerPosition.row) <= 1 && 
+                         Math.abs(col - gameState.playerPosition.col) <= 1)
+                    );
+                    
+                    valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isAdjacentToPlayer;
+                }
                 
                 // Add guard to state
                 gameState.guardPositions.push({ row, col });
@@ -634,186 +1103,135 @@
             updateGridDisplay();
         }
         
-        // Move Guards
-        function moveGuards() {
-            if (gameState.gameOver) return;
+        // Spawn Pickups
+        function spawnPickups() {
+            // Clear existing pickups
+            gameState.pickupPositions = [];
             
-            for (let i = 0; i < gameState.guardPositions.length; i++) {
-                const guard = gameState.guardPositions[i];
-                
-                // Determine if guard should move toward player or randomly
-                const moveTowardPlayer = Math.random() > 0.5;
-                
-                let newRow = guard.row;
-                let newCol = guard.col;
-                
-                if (moveTowardPlayer) {
-                    // Move toward player
-                    if (guard.row < gameState.playerPosition.row) newRow++;
-                    else if (guard.row > gameState.playerPosition.row) newRow--;
-                    
-                    if (guard.col < gameState.playerPosition.col) newCol++;
-                    else if (guard.col > gameState.playerPosition.col) newCol--;
-                } else {
-                    // Move randomly
-                    const direction = Math.floor(Math.random() * 4);
-                    switch (direction) {
-                        case 0: newRow = Math.max(0, guard.row - 1); break;  // Up
-                        case 1: newRow = Math.min(4, guard.row + 1); break;  // Down
-                        case 2: newCol = Math.max(0, guard.col - 1); break;  // Left
-                        case 3: newCol = Math.min(4, guard.col + 1); break;  // Right
-                    }
-                }
-                
-                // Check if new position is valid
-                if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
-                    // Check if position is occupied by another guard or player
-                    const isOccupiedByGuard = gameState.guardPositions.some((g, index) => 
-                        index !== i && g.row === newRow && g.col === newCol
-                    );
-                    
-                    const isOccupiedByPlayer = (
-                        newRow === gameState.playerPosition.row && 
-                        newCol === gameState.playerPosition.col
-                    );
-                    
-                    if (!isOccupiedByGuard && !isOccupiedByPlayer) {
-                        // Update guard position
-                        gameState.guardPositions[i] = { row: newRow, col: newCol };
-                        
-                        // Update alert positions
-                        gameState.guardAlertPositions.forEach(alert => {
-                            if (alert.guardId === i) {
-                                alert.row = newRow;
-                                alert.col = newCol;
-                            }
-                        });
-                        
-                        // Check if guard is adjacent to player
-                        const isAdjacent = (
-                            (Math.abs(newRow - gameState.playerPosition.row) <= 1 && 
-                            Math.abs(newCol - gameState.playerPosition.col) <= 1) &&
-                            !(newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col)
-                        );
-                        
-                        if (isAdjacent) {
-                            // Create alert
-                            createGuardAlert(i);
-                        }
-                        
-                        // Update grid display
-                        updateGridDisplay();
-                    }
-                }
+            // Spawn food (health) pickups
+            const numFoodPickups = Math.min(2, Math.floor(gameState.currentLevel / 2) + 1);
+            
+            for (let i = 0; i < numFoodPickups; i++) {
+                spawnPickup(['🧀', '🥫'][Math.floor(Math.random() * 2)]);
             }
-        }
-        
-        // Create Guard Alert
-        function createGuardAlert(guardId) {
-            // Check if alert already exists for this guard
-            if (gameState.guardAlertPositions.some(a => a.guardId === guardId)) return;
             
-            const guard = gameState.guardPositions[guardId];
+            // Spawn toilet paper (special) pickups
+            const numSpecialPickups = Math.min(3, Math.floor(gameState.currentLevel / 2) + 1);
             
-            // Add to alert positions
-            gameState.guardAlertPositions.push({
-                guardId,
-                row: guard.row,
-                col: guard.col,
-                timeRemaining: 2 // 2 seconds until attack
-            });
+            for (let i = 0; i < numSpecialPickups; i++) {
+                spawnPickup('🧻');
+            }
             
             // Update grid display
             updateGridDisplay();
+        }
+        
+        // Spawn Pickup
+        function spawnPickup(type) {
+            let row, col;
+            let valid = false;
             
-            // Increment alert level
-            gameState.alertLevel++;
+            while (!valid) {
+                row = Math.floor(Math.random() * 5);
+                col = Math.floor(Math.random() * 5);
+                
+                // Check if position is valid
+                const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
+                const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
+                const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                
+                valid = !isPlayerPos && !isGuardPos && !isPickupPos;
+            }
+            
+            // Add pickup to state
+            gameState.pickupPositions.push({ row, col, type });
+        }
+        
+        // Collect Pickup
+        function collectPickup(pickup) {
+            const index = gameState.pickupPositions.findIndex(
+                p => p.row === pickup.row && p.col === pickup.col
+            );
+            
+            if (index === -1) return;
+            
+            // Remove pickup from state
+            gameState.pickupPositions.splice(index, 1);
+            
+            // Apply pickup effect
+            switch (pickup.type) {
+                case '🧀':
+                case '🥫':
+                    // Restore HP
+                    gameState.playerHP = Math.min(gameState.maxHP, gameState.playerHP + 2);
+                    showNotification(`Collected ${pickup.type}! +2 HP`);
+                    break;
+                case '🧻':
+                    // Add to special meter
+                    gameState.specialMeter++;
+                    showNotification(`Collected 🧻! Special: ${gameState.specialMeter}/${gameState.maxSpecialMeter}`);
+                    break;
+            }
+            
+            // Update stats and display
             updateStats();
+            updateGridDisplay();
         }
         
-        // Process Guard Alerts
-        function processGuardAlerts() {
-            for (let i = gameState.guardAlertPositions.length - 1; i >= 0; i--) {
-                const alert = gameState.guardAlertPositions[i];
-                alert.timeRemaining--;
-                
-                if (alert.timeRemaining <= 0) {
-                    // Time's up - guard attacks!
-                    // Remove from state
-                    gameState.guardAlertPositions.splice(i, 1);
-                    
-                    // Update grid display
-                    updateGridDisplay();
-                    
-                    // Decrement alert level
-                    gameState.alertLevel = Math.max(0, gameState.alertLevel - 1);
-                    updateStats();
-                    
-                    // Guard attacks!
-                    guardAttack(alert.guardId);
-                }
-            }
-        }
-        
-        // Guard Attack
-        function guardAttack(guardId) {
-            const guard = gameState.guardPositions[guardId];
-            if (!guard) return; // Guard might have been removed already
+        // Update Actions Left
+        function updateActionsLeft() {
+            actionsLeftElement.textContent = gameState.actionsLeft;
             
-            // Create flashlight beam effect
-            const guardCell = document.querySelector(`.grid-cell[data-row="${guard.row}"][data-col="${guard.col}"]`);
-            if (guardCell) {
-                const beam = guardCell.querySelector('.flashlight-beam');
-                if (beam) {
-                    beam.classList.add('flashing');
-                    setTimeout(() => {
-                        if (beam.classList.contains('flashing')) {
-                            beam.classList.remove('flashing');
-                        }
-                    }, 800);
-                }
-            }
+            // Update UI based on actions left
+            attackBtn.disabled = gameState.actionsLeft < 1;
+            defendBtn.disabled = gameState.actionsLeft < 2;
+            specialBtn.disabled = gameState.actionsLeft < 3 || gameState.specialMeter < gameState.maxSpecialMeter;
             
-            // Check if player is defending
-            if (gameState.playerIsDefending) {
-                // Player blocks the attack
-                showNotification("Attack Blocked! 🛡️");
-                
-                // Remove defending state
-                gameState.playerIsDefending = false;
-                updateGridDisplay();
-            } else {
-                // Player gets hit
-                showNotification("YOU GOT HIT BY THE FLASHLIGHT! DAMAGE TAKEN!");
-                
-                // Create flashlight beam effect on player
-                const playerCell = document.querySelector(`.grid-cell[data-row="${gameState.playerPosition.row}"][data-col="${gameState.playerPosition.col}"]`);
-                if (playerCell) {
-                    const beam = playerCell.querySelector('.flashlight-beam');
-                    if (beam) {
-                        beam.classList.add('flashing');
-                        setTimeout(() => {
-                            if (beam.classList.contains('flashing')) {
-                                beam.classList.remove('flashing');
-                            }
-                        }, 800);
+            // Update turn info text
+            turnInfoElement.firstElementChild.textContent = `Your Turn - ${gameState.actionsLeft} actions left`;
+            
+            // Auto-end turn if no actions left
+            if (gameState.actionsLeft <= 0) {
+                setTimeout(() => {
+                    if (gameState.isPlayerTurn) {
+                        endPlayerTurn();
                     }
-                }
-                
-                // Reduce health
-                gameState.health -= 20;
-                updateStats();
-                
-                // Check if player is dead
-                if (gameState.health <= 0) {
-                    gameOver(false);
-                }
+                }, 1000);
             }
+        }
+        
+        // Update Special Meter
+        function updateSpecialMeter() {
+            specialCountElement.textContent = gameState.specialMeter;
+            specialMeterElement.style.width = `${(gameState.specialMeter / gameState.maxSpecialMeter) * 100}%`;
+            updateSpecialButton();
+        }
+        
+        // Update Special Button
+        function updateSpecialButton() {
+            if (gameState.specialMeter >= gameState.maxSpecialMeter) {
+                specialBtn.style.display = 'inline-block';
+            } else {
+                specialBtn.style.display = 'none';
+            }
+        }
+        
+        // Update Stats
+        function updateStats() {
+            healthElement.textContent = gameState.playerHP;
+            guardsCountElement.textContent = gameState.guardPositions.length;
+            levelElement.textContent = gameState.currentLevel;
+            updateSpecialMeter();
         }
         
         // Game Over
         function gameOver(isWin) {
             gameState.gameOver = true;
+            
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
             
             // Update game over message
             gameOverMessage.textContent = isWin ? "You Win!" : "Game Over!";
@@ -824,6 +1242,8 @@
             // Disable buttons
             attackBtn.disabled = true;
             defendBtn.disabled = true;
+            endTurnBtn.disabled = true;
+            specialBtn.disabled = true;
         }
         
         // Restart Game
@@ -832,18 +1252,10 @@
             initGame();
         }
         
-        // Update Stats
-        function updateStats() {
-            guardsDefeatedElement.textContent = gameState.guardsDefeated;
-            healthElement.textContent = `${gameState.health}%`;
-            alertLevelElement.textContent = gameState.alertLevel;
-        }
-        
         // Change Environment
         function changeEnvironment() {
             gameState.currentEnvironment = (gameState.currentEnvironment + 1) % gameState.environments.length;
             updateEnvironmentDisplay();
-            showNotification(`New location: ${gameState.environments[gameState.currentEnvironment].name}`);
         }
         
         // Update Environment Display
