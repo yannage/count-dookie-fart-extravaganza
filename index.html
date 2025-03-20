@@ -1,13 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Count Dookie Turn-Based Night Mode</title>
+    <title>Count Dookie: Graveyard Escape</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1a102c;
+            background-color: #1a1a1a;
             color: white;
             text-align: center;
             margin: 0;
@@ -15,9 +16,9 @@
         }
         
         #game-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: #2c1b47;
+            background-color: #2c2c2c;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -39,26 +40,26 @@
             font-size: 30px;
             letter-spacing: 5px;
             margin: 10px 0;
-            background-color: #45336d;
+            background-color: #404040;
             border-radius: 15px;
         }
         
         #game-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
             gap: 10px;
             margin: 20px 0;
-            background-color: #251232;
+            background-color: #333333;
             padding: 15px;
             border-radius: 10px;
             position: relative;
         }
         
         .grid-cell {
-            background-color: #3e2157;
+            background-color: #5a4428; /* Dirt color */
             border-radius: 8px;
-            height: 60px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -69,7 +70,7 @@
         }
         
         .grid-cell:hover {
-            background-color: #512b6f;
+            background-color: #6a5438;
             transform: scale(1.05);
         }
         
@@ -82,7 +83,11 @@
         }
         
         .grid-cell.pickup-cell {
-            background-color: #4cc9f0;
+            background-color: #5a4428;
+        }
+        
+        .grid-cell.obstacle-cell {
+            background-color: #666666; /* Gravestone color */
         }
         
         .grid-cell.adjacent-cell {
@@ -105,7 +110,11 @@
             z-index: 10;
             pointer-events: none;
         }
-        
+```
+
+## PART 2: CSS (continued)
+
+```css
         #controls {
             margin: 20px 0;
             display: flex;
@@ -219,7 +228,11 @@
             background-color: rgba(255, 255, 255, 0.1);
             cursor: pointer;
         }
-        
+```
+
+## PART 3: CSS (final) and HTML Structure
+
+```css
         #game-over {
             position: fixed;
             top: 0;
@@ -255,19 +268,65 @@
             font-size: 14px;
             text-align: left;
         }
+        
+        #level-complete {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        #level-complete h2 {
+            color: #4caf50;
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        #level-complete button {
+            background-color: #4caf50;
+            padding: 15px 30px;
+            font-size: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>Count Dookie: Turn-Based Mode</h1>
-        <div id="environment-label">Current Location: 🏰 Castle Banquet Hall</div>
+        <h1>Count Dookie: Graveyard Escape</h1>
+        <div id="environment-label">Current Location: ⚰️ Haunted Graveyard</div>
         
-        <div id="environment-background">🏰 🍗 🍖 🍷 🏰 🍗 🍖 🍷 🏰</div>
+        <div id="environment-background">⚰️ 🪦 🌙 👻 ⚰️ 🪦 🌙 👻 ⚰️</div>
         
         <div id="instructions">
             <strong>How to Play:</strong>
             <ul>
-                <li>Each turn lasts 5 seconds - use your actions wisely!</li>
+                <li>Each turn lasts 1 minute - use your actions wisely!</li>
                 <li>You have 3 actions per turn:
                     <ul>
                         <li>Attack: 1 action</li>
@@ -278,12 +337,13 @@
                 <li>Collect 🧀 or 🥫 to restore HP</li>
                 <li>Collect 🧻 to fill your special meter</li>
                 <li>Use your special move to defeat all guards at once!</li>
+                <li>Avoid the 🪦 gravestones - they block your path!</li>
             </ul>
         </div>
         
         <div id="turn-info">
             <span>Your Turn - <span id="actions-left">3</span> actions left</span>
-            <div id="timer">5</div>
+            <div id="timer">60</div>
         </div>
         
         <div id="controls">
@@ -322,30 +382,41 @@
         <h2 id="game-over-message">Game Over!</h2>
         <button id="restart-btn">Play Again</button>
     </div>
+    
+    <div id="level-complete">
+        <h2>LEVEL COMPLETE!</h2>
+        <button id="next-level-btn">Next Level</button>
+    </div>
+```
 
+## PART 4: JavaScript (Game Initialization and Grid Functions)
+
+```javascript
     <script>
         // Game State
         const gameState = {
             playerHP: 10,
             maxHP: 10,
             actionsLeft: 3,
-            playerPosition: { row: 2, col: 2 },
+            playerPosition: { row: 0, col: 0 }, // Start at top-left
             playerIsDefending: false,
             guardPositions: [],
             pickupPositions: [],
+            obstaclePositions: [], // For gravestones
             specialMeter: 0,
             maxSpecialMeter: 5,
             currentLevel: 1,
             currentEnvironment: 0,
             environments: [
-                { name: 'Castle Banquet Hall', difficulty: 1, emoji: '🏰' },
-                { name: 'Opera House', difficulty: 2, emoji: '🎭' },
-                { name: 'Royal Library', difficulty: 3, emoji: '📚' }
+                { name: 'Haunted Graveyard', difficulty: 1, emoji: '⚰️' },
+                { name: 'Cursed Crypt', difficulty: 2, emoji: '🧟' },
+                { name: 'Abandoned Morgue', difficulty: 3, emoji: '⚱️' }
             ],
             isPlayerTurn: true,
-            turnTimer: 5,
+            turnTimer: 60, // One minute timer
             timerInterval: null,
-            gameOver: false
+            gameOver: false,
+            gridSize: 8 // 8x8 grid
         };
         
         // DOM Elements
@@ -368,20 +439,23 @@
         const gameOverScreen = document.getElementById('game-over');
         const gameOverMessage = document.getElementById('game-over-message');
         const restartBtn = document.getElementById('restart-btn');
+        const levelCompleteScreen = document.getElementById('level-complete');
+        const nextLevelBtn = document.getElementById('next-level-btn');
         
         // Initialize Game
         function initGame() {
             // Reset game state
             gameState.playerHP = 10;
             gameState.actionsLeft = 3;
-            gameState.playerPosition = { row: 2, col: 2 };
+            gameState.playerPosition = { row: 0, col: 0 }; // Start at top-left
             gameState.playerIsDefending = false;
             gameState.guardPositions = [];
             gameState.pickupPositions = [];
+            gameState.obstaclePositions = [];
             gameState.specialMeter = 0;
             gameState.currentLevel = 1;
             gameState.isPlayerTurn = true;
-            gameState.turnTimer = 5;
+            gameState.turnTimer = 60;
             gameState.gameOver = false;
             
             // Clear any existing timer
@@ -396,7 +470,8 @@
             updateStats();
             updateEnvironmentDisplay();
             
-            // Place player and guards
+            // Place player, obstacles, guards and pickups
+            placeObstacles();
             updateGridDisplay();
             spawnGuards();
             spawnPickups();
@@ -411,9 +486,11 @@
             specialBtn.onclick = useSpecialMove;
             environmentLabel.onclick = changeEnvironment;
             restartBtn.onclick = restartGame;
+            nextLevelBtn.onclick = startNextLevel;
             
-            // Hide game over screen
+            // Hide screens
             gameOverScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
             
             // Update special button
             updateSpecialButton();
@@ -421,10 +498,14 @@
         
         // Initialize Grid
         function initGrid() {
+            // Update CSS grid template
+            gameGrid.style.gridTemplateColumns = `repeat(${gameState.gridSize}, 1fr)`;
+            gameGrid.style.gridTemplateRows = `repeat(${gameState.gridSize}, 1fr)`;
+            
             gameGrid.innerHTML = '';
-            for (let row = 0; row < 5; row++) {
-                for (let col = 0; col < 5; col++) {
-                    const index = row * 5 + col;
+            for (let row = 0; row < gameState.gridSize; row++) {
+                for (let col = 0; col < gameState.gridSize; col++) {
+                    const index = row * gameState.gridSize + col;
                     const cell = document.createElement('div');
                     cell.className = 'grid-cell';
                     cell.dataset.index = index;
@@ -436,17 +517,58 @@
             }
         }
         
+        // Place Obstacles (Gravestones)
+        function placeObstacles() {
+            // Clear existing obstacles
+            gameState.obstaclePositions = [];
+            
+            // Determine number of obstacles based on current level
+            const numObstacles = Math.min(15, 5 + gameState.currentLevel * 2);
+            
+            for (let i = 0; i < numObstacles; i++) {
+                // Choose random position (not on player)
+                let row, col;
+                let valid = false;
+                
+                while (!valid) {
+                    row = Math.floor(Math.random() * gameState.gridSize);
+                    col = Math.floor(Math.random() * gameState.gridSize);
+                    
+                    // Check if position is valid
+                    const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
+                    const isObstaclePos = gameState.obstaclePositions.some(o => o.row === row && o.col === col);
+                    
+                    // Don't place obstacles at the edges to ensure path exists
+                    const isEdge = (row === 0 || col === 0 || row === gameState.gridSize-1 || col === gameState.gridSize-1);
+                    
+                    valid = !isPlayerPos && !isObstaclePos && !isEdge;
+                }
+                
+                // Add obstacle to state
+                gameState.obstaclePositions.push({ row, col });
+            }
+        }
+        
         // Update Grid Display
         function updateGridDisplay() {
             // Clear all grid cells
             const cells = document.querySelectorAll('.grid-cell');
             cells.forEach(cell => {
-                cell.classList.remove('player-cell', 'guard-cell', 'pickup-cell', 'adjacent-cell');
+                cell.classList.remove('player-cell', 'guard-cell', 'pickup-cell', 'adjacent-cell', 'obstacle-cell');
                 cell.textContent = '';
             });
             
             // Remove any light beams
             document.querySelectorAll('.light-beam').forEach(beam => beam.remove());
+            
+            // Place obstacles (gravestones)
+            gameState.obstaclePositions.forEach(obstacle => {
+                const obstacleCell = document.querySelector(`.grid-cell[data-row="${obstacle.row}"][data-col="${obstacle.col}"]`);
+                if (obstacleCell) {
+                    obstacleCell.classList.add('obstacle-cell');
+                    obstacleCell.textContent = '🪦';
+                }
+            });
             
             // Place player
             const playerRow = gameState.playerPosition.row;
@@ -488,20 +610,28 @@
             // Update guard count
             guardsCountElement.textContent = gameState.guardPositions.length;
         }
-        
+```
+
+## PART 5: JavaScript (Gameplay Logic - Part 1)
+
+```javascript
         // Highlight Adjacent Cells
         function highlightAdjacentCells(row, col) {
-            for (let r = Math.max(0, row - 1); r <= Math.min(4, row + 1); r++) {
-                for (let c = Math.max(0, col - 1); c <= Math.min(4, col + 1); c++) {
+            for (let r = Math.max(0, row - 1); r <= Math.min(gameState.gridSize - 1, row + 1); r++) {
+                for (let c = Math.max(0, col - 1); c <= Math.min(gameState.gridSize - 1, col + 1); c++) {
                     // Skip the player's current cell
                     if (r === row && c === col) continue;
                     
-                    // Skip cells occupied by guards
+                    // Skip cells occupied by guards or obstacles
                     const isOccupiedByGuard = gameState.guardPositions.some(guard => 
                         guard.row === r && guard.col === c
                     );
                     
-                    if (!isOccupiedByGuard) {
+                    const isOccupiedByObstacle = gameState.obstaclePositions.some(obstacle => 
+                        obstacle.row === r && obstacle.col === c
+                    );
+                    
+                    if (!isOccupiedByGuard && !isOccupiedByObstacle) {
                         const cell = document.querySelector(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
                         if (cell) {
                             cell.classList.add('adjacent-cell');
@@ -540,10 +670,15 @@
                 guard.row === row && guard.col === col
             );
             
+            // Check if cell is occupied by an obstacle
+            const isOccupiedByObstacle = gameState.obstaclePositions.some(obstacle => 
+                obstacle.row === row && obstacle.col === col
+            );
+            
             // Check if cell has a pickup
             const pickup = gameState.pickupPositions.find(p => p.row === row && p.col === col);
             
-            if (isAdjacent && !isOccupiedByGuard) {
+            if (isAdjacent && !isOccupiedByGuard && !isOccupiedByObstacle) {
                 // Move player
                 if (gameState.actionsLeft >= 1) {
                     movePlayer(row, col);
@@ -560,6 +695,8 @@
             } else if (isOccupiedByGuard && isAdjacent) {
                 // If clicking on an adjacent guard, attack it
                 playerAttack();
+            } else if (isOccupiedByObstacle) {
+                showNotification("That's a gravestone! You can't move there!");
             } else if (row === playerRow && col === playerCol) {
                 // If clicking on yourself, do nothing
                 showNotification("You're already here!");
@@ -575,7 +712,7 @@
             gameState.isPlayerTurn = true;
             gameState.actionsLeft = 3;
             gameState.playerIsDefending = false;
-            gameState.turnTimer = 5;
+            gameState.turnTimer = 60; // 1 minute timer
             
             // Update UI
             turnInfoElement.style.backgroundColor = '#4cc9f0';
@@ -592,7 +729,7 @@
             // Start timer
             startTurnTimer();
             
-            showNotification("Your Turn! You have 5 seconds.");
+            showNotification("Your Turn! You have 1 minute.");
         }
         
         // Start Turn Timer
@@ -646,7 +783,11 @@
             
             showNotification("Enemy Turn!");
         }
-        
+```
+
+## PART 6: JavaScript (Guard AI Logic)
+
+```javascript
         // Start Guard Turn
         function startGuardTurn() {
             gameState.turnTimer = 3; // Guards get a shorter turn
@@ -747,7 +888,6 @@
             let rowDiff = 0;
             let colDiff = 0;
             
-            if (guard.row < playerRow) rowDiff = 1;
             else if (guard.row > playerRow) rowDiff = -1;
             
             if (guard.col < playerCol) colDiff = 1;
@@ -777,13 +917,17 @@
                 const newCol = guard.col + dir.colDiff;
                 
                 // Check if valid position
-                if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
-                    // Check if occupied
-                    const isOccupied = gameState.guardPositions.some(g => 
+                if (newRow >= 0 && newRow < gameState.gridSize && newCol >= 0 && newCol < gameState.gridSize) {
+                    // Check if occupied by player, guard or obstacle
+                    const isOccupiedByPlayer = (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                    const isOccupiedByGuard = gameState.guardPositions.some(g => 
                         g.row === newRow && g.col === newCol
-                    ) || (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                    );
+                    const isOccupiedByObstacle = gameState.obstaclePositions.some(o => 
+                        o.row === newRow && o.col === newCol
+                    );
                     
-                    if (!isOccupied) {
+                    if (!isOccupiedByPlayer && !isOccupiedByGuard && !isOccupiedByObstacle) {
                         return dir;
                     }
                 }
@@ -829,13 +973,17 @@
             const newCol = guard.col + direction.colDiff;
             
             // Check if valid position
-            if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+            if (newRow >= 0 && newRow < gameState.gridSize && newCol >= 0 && newCol < gameState.gridSize) {
                 // Check if occupied
-                const isOccupied = gameState.guardPositions.some(g => 
+                const isOccupiedByPlayer = (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                const isOccupiedByGuard = gameState.guardPositions.some(g => 
                     g.row === newRow && g.col === newCol
-                ) || (newRow === gameState.playerPosition.row && newCol === gameState.playerPosition.col);
+                );
+                const isOccupiedByObstacle = gameState.obstaclePositions.some(o => 
+                    o.row === newRow && o.col === newCol
+                );
                 
-                if (!isOccupied) {
+                if (!isOccupiedByPlayer && !isOccupiedByGuard && !isOccupiedByObstacle) {
                     // Update guard position
                     gameState.guardPositions[guardId] = { row: newRow, col: newCol };
                     updateGridDisplay();
@@ -881,7 +1029,11 @@
                 }
             }
         }
-        
+```
+
+## PART 7: JavaScript (Visuals and Player Actions)
+
+```javascript
         // Create Light Beam
         function createLightBeam(from, to) {
             // Get cell positions
@@ -975,26 +1127,54 @@
                 
                 // Check if all guards are defeated
                 if (gameState.guardPositions.length === 0) {
-                    showNotification("ALL GUARDS DEFEATED! LEVEL CLEAR! 🏆");
-                    
-                    // Increase level and difficulty
-                    setTimeout(() => {
-                        if (!gameState.gameOver) {
-                            gameState.currentLevel++;
-                            changeEnvironment();
-                            
-                            // Spawn new guards and pickups for next level
-                            spawnGuards();
-                            spawnPickups();
-                            updateStats();
-                        }
-                    }, 2000);
+                    showLevelComplete();
                 }
             } else {
                 showNotification("No guards in range to attack!");
             }
         }
         
+        // Show Level Complete
+        function showLevelComplete() {
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // Show level complete screen
+            levelCompleteScreen.style.display = 'flex';
+            
+            // Add event listener to next level button if not already added
+            nextLevelBtn.onclick = startNextLevel;
+        }
+        
+        // Start Next Level
+        function startNextLevel() {
+            // Hide level complete screen
+            levelCompleteScreen.style.display = 'none';
+            
+            // Increase level
+            gameState.currentLevel++;
+            
+            // Change environment
+            changeEnvironment();
+            
+            // Spawn new guards and pickups for next level
+            placeObstacles();
+            spawnGuards();
+            spawnPickups();
+            
+            // Update stats
+            updateStats();
+            
+            // Start player turn for new level
+            startPlayerTurn();
+        }
+```
+
+## PART 8: JavaScript (Player Actions and Game Mechanics)
+
+```javascript
         // Player Defend
         function playerDefend() {
             if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 2) {
@@ -1053,14 +1233,10 @@
             setTimeout(() => {
                 updateGridDisplay();
                 
-                // Go to next level
-                gameState.currentLevel++;
-                changeEnvironment();
-                
-                // Spawn new guards and pickups for next level
-                spawnGuards();
-                spawnPickups();
-                updateStats();
+                // Level complete
+                if (guardCount > 0) {
+                    showLevelComplete();
+                }
             }, 2000);
         }
         
@@ -1070,21 +1246,22 @@
             gameState.guardPositions = [];
             
             // Determine number of guards based on current level
-            const numGuards = gameState.currentLevel + 1;
+            const numGuards = Math.min(15, gameState.currentLevel + 2);
             
             for (let i = 0; i < numGuards; i++) {
-                // Choose random position (not on player or pickup)
+                // Choose random position (not on player or pickup or obstacle)
                 let row, col;
                 let valid = false;
                 
                 while (!valid) {
-                    row = Math.floor(Math.random() * 5);
-                    col = Math.floor(Math.random() * 5);
+                    row = Math.floor(Math.random() * gameState.gridSize);
+                    col = Math.floor(Math.random() * gameState.gridSize);
                     
                     // Check if position is valid
                     const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
                     const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
                     const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                    const isObstaclePos = gameState.obstaclePositions.some(o => o.row === row && o.col === col);
                     
                     // Also ensure not adjacent to player at start
                     const isAdjacentToPlayer = (
@@ -1092,7 +1269,7 @@
                          Math.abs(col - gameState.playerPosition.col) <= 1)
                     );
                     
-                    valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isAdjacentToPlayer;
+                    valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isObstaclePos && !isAdjacentToPlayer;
                 }
                 
                 // Add guard to state
@@ -1109,14 +1286,14 @@
             gameState.pickupPositions = [];
             
             // Spawn food (health) pickups
-            const numFoodPickups = Math.min(2, Math.floor(gameState.currentLevel / 2) + 1);
+            const numFoodPickups = Math.min(5, Math.floor(gameState.currentLevel / 2) + 2);
             
             for (let i = 0; i < numFoodPickups; i++) {
                 spawnPickup(['🧀', '🥫'][Math.floor(Math.random() * 2)]);
             }
             
             // Spawn toilet paper (special) pickups
-            const numSpecialPickups = Math.min(3, Math.floor(gameState.currentLevel / 2) + 1);
+            const numSpecialPickups = Math.min(5, Math.floor(gameState.currentLevel / 2) + 1);
             
             for (let i = 0; i < numSpecialPickups; i++) {
                 spawnPickup('🧻');
@@ -1125,22 +1302,27 @@
             // Update grid display
             updateGridDisplay();
         }
-        
+```
+
+## PART 9: JavaScript (Game Mechanics and Utilities)
+
+```javascript
         // Spawn Pickup
         function spawnPickup(type) {
             let row, col;
             let valid = false;
             
             while (!valid) {
-                row = Math.floor(Math.random() * 5);
-                col = Math.floor(Math.random() * 5);
+                row = Math.floor(Math.random() * gameState.gridSize);
+                col = Math.floor(Math.random() * gameState.gridSize);
                 
                 // Check if position is valid
                 const isPlayerPos = (row === gameState.playerPosition.row && col === gameState.playerPosition.col);
                 const isGuardPos = gameState.guardPositions.some(g => g.row === row && g.col === col);
                 const isPickupPos = gameState.pickupPositions.some(p => p.row === row && p.col === col);
+                const isObstaclePos = gameState.obstaclePositions.some(o => o.row === row && o.col === col);
                 
-                valid = !isPlayerPos && !isGuardPos && !isPickupPos;
+                valid = !isPlayerPos && !isGuardPos && !isPickupPos && !isObstaclePos;
             }
             
             // Add pickup to state
@@ -1223,7 +1405,11 @@
             levelElement.textContent = gameState.currentLevel;
             updateSpecialMeter();
         }
-        
+```
+
+## PART 10: JavaScript (UI and Game State Management)
+
+```javascript
         // Game Over
         function gameOver(isWin) {
             gameState.gameOver = true;
@@ -1249,6 +1435,7 @@
         // Restart Game
         function restartGame() {
             gameOverScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
             initGame();
         }
         
@@ -1265,20 +1452,20 @@
             
             // Update styling based on environment
             switch (environment.name) {
-                case 'Castle Banquet Hall':
-                    document.body.style.backgroundColor = '#2c1b47';
-                    environmentBackground.innerHTML = '🏰 🍗 🍖 🍷 🏰 🍗 🍖 🍷 🏰';
-                    environmentBackground.style.backgroundColor = '#45336d';
+                case 'Haunted Graveyard':
+                    document.body.style.backgroundColor = '#1a1a1a';
+                    environmentBackground.innerHTML = '⚰️ 🪦 🌙 👻 ⚰️ 🪦 🌙 👻 ⚰️';
+                    environmentBackground.style.backgroundColor = '#404040';
                     break;
-                case 'Opera House':
-                    document.body.style.backgroundColor = '#3a0028';
-                    environmentBackground.innerHTML = '🎭 🎻 🎵 🎺 🎭 🎻 🎵 🎺 🎭';
-                    environmentBackground.style.backgroundColor = '#5c1945';
+                case 'Cursed Crypt':
+                    document.body.style.backgroundColor = '#2a1a2a';
+                    environmentBackground.innerHTML = '🧟 🦴 ⚱️ 🕸️ 🧟 🦴 ⚱️ 🕸️ 🧟';
+                    environmentBackground.style.backgroundColor = '#4a2a4a';
                     break;
-                case 'Royal Library':
-                    document.body.style.backgroundColor = '#28281e';
-                    environmentBackground.innerHTML = '📚 📜 📕 📖 📚 📜 📕 📖 📚';
-                    environmentBackground.style.backgroundColor = '#3d3d2a';
+                case 'Abandoned Morgue':
+                    document.body.style.backgroundColor = '#1a2a2a';
+                    environmentBackground.innerHTML = '⚱️ 💉 🩻 🧪 ⚱️ 💉 🩻 🧪 ⚱️';
+                    environmentBackground.style.backgroundColor = '#2a3a3a';
                     break;
             }
         }
