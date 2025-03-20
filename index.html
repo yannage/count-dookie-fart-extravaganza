@@ -866,4 +866,23 @@
                 case 'Royal Library':
                     document.body.style.backgroundColor = '#28281e';
                     environmentBackground.innerHTML = '📚 📜 📕 📖 📚 📜 📕 📖 📚';
-                    environmentBackground.
+                    environmentBackground.style.backgroundColor = '#3d3d2a';
+                    break;
+            }
+        }
+        
+        // Show Notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
