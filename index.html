@@ -110,11 +110,6 @@
             z-index: 10;
             pointer-events: none;
         }
-```
-
-## PART 2: CSS (continued)
-
-```css
         #controls {
             margin: 20px 0;
             display: flex;
@@ -228,11 +223,6 @@
             background-color: rgba(255, 255, 255, 0.1);
             cursor: pointer;
         }
-```
-
-## PART 3: CSS (final) and HTML Structure
-
-```css
         #game-over {
             position: fixed;
             top: 0;
@@ -387,11 +377,6 @@
         <h2>LEVEL COMPLETE!</h2>
         <button id="next-level-btn">Next Level</button>
     </div>
-```
-
-## PART 4: JavaScript (Game Initialization and Grid Functions)
-
-```javascript
     <script>
         // Game State
         const gameState = {
@@ -610,11 +595,6 @@
             // Update guard count
             guardsCountElement.textContent = gameState.guardPositions.length;
         }
-```
-
-## PART 5: JavaScript (Gameplay Logic - Part 1)
-
-```javascript
         // Highlight Adjacent Cells
         function highlightAdjacentCells(row, col) {
             for (let r = Math.max(0, row - 1); r <= Math.min(gameState.gridSize - 1, row + 1); r++) {
@@ -783,11 +763,6 @@
             
             showNotification("Enemy Turn!");
         }
-```
-
-## PART 6: JavaScript (Guard AI Logic)
-
-```javascript
         // Start Guard Turn
         function startGuardTurn() {
             gameState.turnTimer = 3; // Guards get a shorter turn
@@ -1029,11 +1004,6 @@
                 }
             }
         }
-```
-
-## PART 7: JavaScript (Visuals and Player Actions)
-
-```javascript
         // Create Light Beam
         function createLightBeam(from, to) {
             // Get cell positions
@@ -1170,11 +1140,6 @@
             // Start player turn for new level
             startPlayerTurn();
         }
-```
-
-## PART 8: JavaScript (Player Actions and Game Mechanics)
-
-```javascript
         // Player Defend
         function playerDefend() {
             if (gameState.gameOver || !gameState.isPlayerTurn || gameState.actionsLeft < 2) {
@@ -1302,11 +1267,6 @@
             // Update grid display
             updateGridDisplay();
         }
-```
-
-## PART 9: JavaScript (Game Mechanics and Utilities)
-
-```javascript
         // Spawn Pickup
         function spawnPickup(type) {
             let row, col;
@@ -1405,11 +1365,6 @@
             levelElement.textContent = gameState.currentLevel;
             updateSpecialMeter();
         }
-```
-
-## PART 10: JavaScript (UI and Game State Management)
-
-```javascript
         // Game Over
         function gameOver(isWin) {
             gameState.gameOver = true;
